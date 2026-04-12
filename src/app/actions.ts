@@ -90,6 +90,48 @@ export async function signInAction(formData: FormData) {
   });
 
   if (error) {
+    if (hasSupabaseAdminEnv()) {
+      const adminSupabase = createAdminClient();
+      const { data: usersData, error: usersError } =
+        await adminSupabase.auth.admin.listUsers({
+          page: 1,
+          perPage: 1000,
+        });
+
+      if (!usersError) {
+        const existingUser = usersData.users.find(
+          (user) => user.email?.toLowerCase() === authUser.email.toLowerCase(),
+        );
+
+        if (!existingUser) {
+          const { error: createError } =
+            await adminSupabase.auth.admin.createUser({
+              email: authUser.email,
+              email_confirm: true,
+              password,
+              user_metadata: {
+                username: authUser.username,
+              },
+            });
+
+          if (!createError) {
+            const { error: retryError } = await supabase.auth.signInWithPassword({
+              email: authUser.email,
+              password,
+            });
+
+            if (!retryError) {
+              redirect("/?flash=signed_in");
+            }
+          }
+        }
+      }
+    }
+
+    console.error("Username sign-in failed", {
+      message: error.message,
+      username: authUser.username,
+    });
     redirect("/login?flash=login_failed");
   }
 
@@ -129,7 +171,21 @@ export async function resetPasswordAction(formData: FormData) {
   );
 
   if (!existingUser) {
-    redirect("/login?flash=reset_failed");
+    const { error: createError } = await supabase.auth.admin.createUser({
+      email: authUser.email,
+      email_confirm: true,
+      password,
+      user_metadata: {
+        username: authUser.username,
+      },
+    });
+
+    if (createError) {
+      console.error("Password reset user creation failed", createError);
+      redirect("/login?flash=reset_failed");
+    }
+
+    redirect("/login?flash=password_reset");
   }
 
   const { error: updateError } = await supabase.auth.admin.updateUserById(
@@ -140,6 +196,7 @@ export async function resetPasswordAction(formData: FormData) {
   );
 
   if (updateError) {
+    console.error("Password reset update failed", updateError);
     redirect("/login?flash=reset_failed");
   }
 
