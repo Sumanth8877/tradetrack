@@ -259,6 +259,43 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
+@keyframes login-energy-spin {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.96) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.03) rotate(180deg);
+  }
+}
+
+@keyframes login-beam-shift {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: rotate(var(--beam-rotate, 0deg)) translate3d(0, 0, 0);
+  }
+
+  50% {
+    opacity: 0.28;
+    transform: rotate(calc(var(--beam-rotate, 0deg) + 3deg)) translate3d(0, -22px, 0);
+  }
+}
+
+@keyframes login-arc-drift {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  50% {
+    opacity: 0.28;
+    transform: translate(-50%, -50%) rotate(10deg) scale(1.02);
+  }
+}
+
 .login-grid {
   background-image:
     linear-gradient(rgba(125, 211, 252, 0.09) 1px, transparent 1px),
@@ -312,84 +349,105 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .login-spotlight {
   background:
-    radial-gradient(circle at var(--login-pointer-x) var(--login-pointer-y), rgba(125, 211, 252, 0.18), transparent 18%),
-    radial-gradient(circle at calc(var(--login-pointer-x) + 8%) calc(var(--login-pointer-y) - 12%), rgba(245, 158, 11, 0.12), transparent 24%);
+    radial-gradient(circle at var(--login-pointer-x) var(--login-pointer-y), rgba(125, 211, 252, 0.12), transparent 16%),
+    radial-gradient(circle at calc(var(--login-pointer-x) + 8%) calc(var(--login-pointer-y) - 12%), rgba(245, 158, 11, 0.08), transparent 22%);
   mix-blend-mode: screen;
 }
 
-.login-holo-panel {
-  border: 1px solid rgba(125, 211, 252, 0.09);
+.login-energy-field {
   background:
-    linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(255, 255, 255, 0.01) 40%, rgba(245, 158, 11, 0.12)),
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 56%);
-  clip-path: polygon(10% 0, 100% 8%, 92% 100%, 0 90%);
-  filter: blur(1px);
+    radial-gradient(circle at center, rgba(103, 232, 249, 0.18), transparent 30%),
+    conic-gradient(from 180deg, rgba(34, 211, 238, 0.2), rgba(16, 185, 129, 0.1), rgba(245, 158, 11, 0.16), rgba(34, 211, 238, 0.2));
+  filter: blur(18px) saturate(112%);
   mix-blend-mode: screen;
+  mask-image: radial-gradient(circle at center, black 0, black 34%, transparent 72%);
   opacity: 0.34;
-  transform: rotate(var(--panel-rotate, 0deg));
-  animation: login-panel-drift 13s ease-in-out infinite;
+  transform: translate(-50%, -50%);
+  animation: login-energy-spin 20s linear infinite;
 }
 
-.login-holo-panel-a {
-  --panel-rotate: -16deg;
-  box-shadow: 0 0 120px rgba(34, 211, 238, 0.18);
+.login-energy-beam {
+  --beam-rotate: 0deg;
+  border-radius: 9999px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(125, 211, 252, 0),
+      rgba(125, 211, 252, 0.08),
+      rgba(125, 211, 252, 0.24),
+      rgba(245, 158, 11, 0.1),
+      rgba(245, 158, 11, 0)
+    );
+  filter: blur(14px);
+  mix-blend-mode: screen;
+  opacity: 0.18;
+  transform: rotate(var(--beam-rotate, 0deg));
+  animation: login-beam-shift 15s ease-in-out infinite;
 }
 
-.login-holo-panel-b {
-  --panel-rotate: 18deg;
-  opacity: 0.24;
-  animation-duration: 15s;
+.login-energy-beam-left {
+  --beam-rotate: -20deg;
 }
 
-.login-holo-panel-c {
-  --panel-rotate: 38deg;
-  opacity: 0.16;
-  animation-duration: 18s;
+.login-energy-beam-right {
+  --beam-rotate: 18deg;
+  animation-duration: 17s;
 }
 
 .login-radar {
   background:
-    radial-gradient(circle at center, rgba(34, 211, 238, 0.08), transparent 32%),
-    repeating-radial-gradient(circle at center, rgba(125, 211, 252, 0.09) 0 1px, transparent 1px 84px);
-  mask-image: radial-gradient(circle at center, transparent 0, black 14%, black 60%, transparent 78%);
-  opacity: 0.38;
+    radial-gradient(circle at center, rgba(34, 211, 238, 0.05), transparent 30%),
+    repeating-radial-gradient(circle at center, rgba(125, 211, 252, 0.05) 0 1px, transparent 1px 96px);
+  mask-image: radial-gradient(circle at center, transparent 0, black 12%, black 58%, transparent 82%);
+  opacity: 0.28;
 }
 
 .login-radar-sweep {
-  background: conic-gradient(from 0deg, transparent 0deg, rgba(34, 211, 238, 0.15) 32deg, transparent 68deg);
-  mask-image: radial-gradient(circle at center, transparent 0, black 12%, black 58%, transparent 74%);
-  opacity: 0.82;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(34, 211, 238, 0.08) 38deg, rgba(255, 255, 255, 0.02) 62deg, transparent 96deg);
+  mask-image: radial-gradient(circle at center, transparent 0, black 14%, black 54%, transparent 78%);
+  opacity: 0.56;
   transform: translate(-50%, -50%);
   transform-origin: center;
-  animation: login-radar-sweep 12s linear infinite;
+  animation: login-radar-sweep 18s linear infinite;
 }
 
-.login-hud-ring {
+.login-signal-arc {
   border-radius: 9999px;
   background:
-    repeating-conic-gradient(
+    conic-gradient(
       from 0deg,
-      rgba(125, 211, 252, 0.32) 0deg 9deg,
-      transparent 9deg 24deg,
-      rgba(245, 158, 11, 0.16) 24deg 29deg,
-      transparent 29deg 40deg
+      transparent 0deg 22deg,
+      rgba(125, 211, 252, 0.22) 30deg 58deg,
+      transparent 66deg 160deg,
+      rgba(245, 158, 11, 0.14) 168deg 192deg,
+      transparent 204deg 286deg,
+      rgba(125, 211, 252, 0.18) 294deg 320deg,
+      transparent 330deg 360deg
     );
   mask:
     radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)),
-    radial-gradient(farthest-side, transparent calc(100% - 46px), #000 calc(100% - 46px));
+    radial-gradient(farthest-side, transparent calc(100% - 28px), #000 calc(100% - 28px));
   -webkit-mask:
     radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)),
-    radial-gradient(farthest-side, transparent calc(100% - 46px), #000 calc(100% - 46px));
-  opacity: 0.22;
-  animation:
-    login-border-spin 24s linear infinite,
-    login-ring-flicker 6s ease-in-out infinite;
+    radial-gradient(farthest-side, transparent calc(100% - 28px), #000 calc(100% - 28px));
+  opacity: 0.16;
+  transform: translate(-50%, -50%);
+  animation: login-arc-drift 18s ease-in-out infinite;
 }
 
-.login-hud-ring-alt {
-  opacity: 0.18;
-  animation-duration: 34s, 7s;
-  animation-direction: reverse, normal;
+.login-signal-arc-a {
+  animation-duration: 22s;
+}
+
+.login-signal-arc-b {
+  opacity: 0.12;
+  animation-duration: 18s;
+  animation-direction: reverse;
+}
+
+.login-signal-arc-c {
+  opacity: 0.1;
+  animation-duration: 14s;
 }
 
 .login-card-shell {
@@ -529,8 +587,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .login-market-trace,
   .login-market-trace-faint,
   .login-title,
-  .login-holo-panel,
-  .login-hud-ring {
+  .login-energy-field,
+  .login-energy-beam,
+  .login-signal-arc {
     animation: none;
   }
 
