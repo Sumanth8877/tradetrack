@@ -1,15 +1,14 @@
 import { redirect } from "next/navigation";
 
-import { resetPasswordAction, signInAction } from "@/app/actions";
+import { signInAction } from "@/app/actions";
 import { FlashBanner } from "@/components/flash-banner";
+import { PasswordResetDialog } from "@/components/password-reset-dialog";
 import { SectionCard } from "@/components/section-card";
-import { SubmitButton } from "@/components/submit-button";
 import { hasSupabaseEnv } from "@/lib/env";
 import {
   inputClass,
   labelClass,
   primaryButtonClass,
-  secondaryButtonClass,
   subtleBadgeClass,
 } from "@/lib/styles";
 import { createClient } from "@/lib/supabase/server";
@@ -108,7 +107,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             description="Use one of the two provisioned accounts to access the dashboard."
             title="Sign In"
           >
-            <form action={signInAction} autoComplete="off" className="space-y-4">
+            <form
+              action={signInAction}
+              autoComplete="off"
+              className="space-y-4"
+              id="sign-in-form"
+            >
               <div>
                 <label className={labelClass} htmlFor="login-username">
                   Username
@@ -138,103 +142,22 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   type="password"
                 />
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <SubmitButton
-                  className={primaryButtonClass}
-                  pendingLabel="Signing in..."
-                >
-                  Open dashboard
-                </SubmitButton>
-                <a className={secondaryButtonClass} href="#reset-password">
-                  Reset password
-                </a>
-              </div>
             </form>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <button
+                className={primaryButtonClass}
+                form="sign-in-form"
+                type="submit"
+              >
+                Open dashboard
+              </button>
+              <PasswordResetDialog />
+            </div>
             <p className="text-sm leading-6 text-zinc-400">
               Public sign-up is disabled. New access has to be provisioned in
               Supabase Auth first.
             </p>
           </SectionCard>
-
-          <div id="reset-password">
-            <SectionCard
-              description="Reset either account with its username, the admin reset key, and a new password."
-              title="Reset Password"
-            >
-              <form
-                action={resetPasswordAction}
-                autoComplete="off"
-                className="space-y-4"
-              >
-                <div>
-                  <label className={labelClass} htmlFor="reset-username">
-                    Username
-                  </label>
-                  <input
-                    autoComplete="off"
-                    className={inputClass}
-                    id="reset-username"
-                    name="username"
-                    placeholder="Enter username"
-                    required
-                    type="text"
-                  />
-                </div>
-                <div>
-                  <label className={labelClass} htmlFor="reset-key">
-                    Admin reset key
-                  </label>
-                  <input
-                    className={inputClass}
-                    id="reset-key"
-                    name="reset_key"
-                    placeholder="Enter reset key"
-                    required
-                    type="password"
-                  />
-                </div>
-                <div>
-                  <label className={labelClass} htmlFor="reset-new-password">
-                    New password
-                  </label>
-                  <input
-                    autoComplete="off"
-                    className={inputClass}
-                    id="reset-new-password"
-                    minLength={8}
-                    name="password"
-                    placeholder="Enter new password"
-                    required
-                    type="password"
-                  />
-                </div>
-                <div>
-                  <label
-                    className={labelClass}
-                    htmlFor="reset-confirm-password"
-                  >
-                    Confirm password
-                  </label>
-                  <input
-                    autoComplete="off"
-                    className={inputClass}
-                    id="reset-confirm-password"
-                    minLength={8}
-                    name="confirm_password"
-                    placeholder="Confirm new password"
-                    required
-                    type="password"
-                  />
-                </div>
-                <SubmitButton
-                  className={secondaryButtonClass}
-                  pendingLabel="Resetting password..."
-                >
-                  Reset password
-                </SubmitButton>
-              </form>
-            </SectionCard>
-          </div>
         </div>
       </div>
     </main>

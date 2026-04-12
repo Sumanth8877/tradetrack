@@ -42,14 +42,6 @@ export function getSupabaseAdminEnv() {
   });
 }
 
-export function hasPasswordResetEnv() {
-  return Boolean(process.env.PASSWORD_RESET_ADMIN_KEY);
-}
-
-export function getPasswordResetAdminKey() {
-  return z.string().min(1).parse(process.env.PASSWORD_RESET_ADMIN_KEY);
-}
-
 export function hasOpenAiEnv() {
   return Boolean(process.env.OPENAI_API_KEY);
 }

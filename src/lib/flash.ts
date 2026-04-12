@@ -63,7 +63,7 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     tone: "error",
   },
   reset_unavailable: {
-    message: "Add SUPABASE_SERVICE_ROLE_KEY and PASSWORD_RESET_ADMIN_KEY to enable username password resets.",
+    message: "Add SUPABASE_SERVICE_ROLE_KEY to enable username password resets.",
     title: "Reset unavailable",
     tone: "error",
   },

@@ -7,9 +7,7 @@ import { z } from "zod";
 import { generateDailyInsightIfNeeded, generateWeeklySummary } from "@/lib/ai";
 import { getAuthUserByUsername } from "@/lib/auth-users";
 import {
-  getPasswordResetAdminKey,
   hasOpenAiEnv,
-  hasPasswordResetEnv,
   hasSupabaseAdminEnv,
   hasSupabaseEnv,
 } from "@/lib/env";
@@ -99,12 +97,11 @@ export async function signInAction(formData: FormData) {
 }
 
 export async function resetPasswordAction(formData: FormData) {
-  if (!hasSupabaseEnv() || !hasSupabaseAdminEnv() || !hasPasswordResetEnv()) {
+  if (!hasSupabaseEnv() || !hasSupabaseAdminEnv()) {
     redirect("/login?flash=reset_unavailable");
   }
 
   const username = toRequiredString(formData.get("username"));
-  const resetKey = toRequiredString(formData.get("reset_key"));
   const password = toRequiredString(formData.get("password"));
   const confirmPassword = toRequiredString(formData.get("confirm_password"));
   const authUser = getAuthUserByUsername(username);
@@ -114,10 +111,6 @@ export async function resetPasswordAction(formData: FormData) {
   }
 
   if (!authUser) {
-    redirect("/login?flash=reset_failed");
-  }
-
-  if (resetKey !== getPasswordResetAdminKey()) {
     redirect("/login?flash=reset_failed");
   }
 

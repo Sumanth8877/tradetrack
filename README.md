@@ -45,12 +45,11 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 # Needed for auth:create-users and username password reset
 SUPABASE_SERVICE_ROLE_KEY=
-PASSWORD_RESET_ADMIN_KEY=
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5-nano
 ```
 
-`OPENAI_MODEL` is optional. The default is `gpt-5-nano` to keep costs low for short summaries. Keep `SUPABASE_SERVICE_ROLE_KEY` and `PASSWORD_RESET_ADMIN_KEY` server-side only.
+`OPENAI_MODEL` is optional. The default is `gpt-5-nano` to keep costs low for short summaries. Keep `SUPABASE_SERVICE_ROLE_KEY` server-side only.
 
 ## Provision The Two Login Accounts
 
@@ -80,7 +79,7 @@ The script will:
 
 Instead of command-line arguments, you can also set `AUTH_DEFAULT_PASSWORD` before running the same script.
 
-The login page also has a password reset form. It requires the username, a new password, and `PASSWORD_RESET_ADMIN_KEY`; username-only reset is intentionally blocked because anyone who knows a username could otherwise take over that account.
+The login page also has a password reset popup. It requires only the username, a new password, and password confirmation.
 
 ## Database Notes
 
@@ -95,4 +94,4 @@ The login page also has a password reset form. It requires the username, a new p
 3. Add the same environment variables from `.env.local` in the Vercel project.
 4. Deploy.
 
-Supabase and OpenAI keys are the required runtime secrets. Add the service role key and password reset key if you want to use username password reset in the deployed app.
+Supabase and OpenAI keys are the required runtime secrets. Add the service role key if you want to use username password reset in the deployed app.
