@@ -105,6 +105,45 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
+@keyframes login-aurora {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes login-pulse-ring {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.8);
+  }
+
+  70% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+}
+
+@keyframes login-candle {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+
+  50% {
+    transform: scaleY(1);
+  }
+}
+
 .login-grid {
   background-image:
     linear-gradient(rgba(125, 211, 252, 0.09) 1px, transparent 1px),
@@ -133,12 +172,29 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   animation: login-ticker 24s linear infinite;
 }
 
+.login-aurora {
+  animation: login-aurora 14s ease-in-out infinite;
+  background-size: 220% 220%;
+}
+
+.login-pulse-ring {
+  animation: login-pulse-ring 3.4s ease-out infinite;
+}
+
+.login-candle {
+  animation: login-candle 2.7s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .login-orbit,
   .login-drift,
   .login-scan,
   .login-rise,
-  .login-ticker {
+  .login-ticker,
+  .login-aurora,
+  .login-pulse-ring,
+  .login-candle {
     animation: none;
   }
 }

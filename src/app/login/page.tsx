@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import {
   ArrowRight,
   CandlestickChart,
-  LockKeyhole,
 } from "lucide-react";
 
 import { signInAction } from "@/app/actions";
@@ -24,11 +23,19 @@ type LoginPageProps = {
   }>;
 };
 
-const quoteSteps = [
-  "Learn the setup",
-  "Trade the plan",
-  "Review the result",
-  "Repeat with discipline",
+const candleHeights = [
+  74,
+  38,
+  92,
+  51,
+  84,
+  45,
+  68,
+  58,
+  96,
+  42,
+  77,
+  63,
 ];
 
 function SetupState({ flashCode }: { flashCode?: string }) {
@@ -84,140 +91,94 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   return (
-    <main className="relative isolate min-h-screen overflow-x-hidden bg-[#030711] px-5 py-6 text-zinc-50 sm:px-8 lg:px-10">
-      <div className="login-grid pointer-events-none absolute inset-0 opacity-70" />
+    <main className="relative isolate grid min-h-screen place-items-center overflow-hidden bg-[#020711] px-5 py-8 text-zinc-50">
+      <div className="login-grid pointer-events-none absolute inset-0 opacity-80" />
+      <div className="login-aurora pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(34,211,238,0.22),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(245,158,11,0.18),transparent_27%),radial-gradient(circle_at_50%_86%,rgba(16,185,129,0.14),transparent_34%)]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 size-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/10" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 size-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-amber-200/10 login-orbit" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 size-[18rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-200/10 login-pulse-ring" />
       <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl login-drift" />
-      <div className="pointer-events-none absolute right-0 top-0 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-400/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-amber-300/15 blur-3xl login-drift" />
 
-      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-7xl flex-col justify-center">
-        <div className="mb-6 flex items-center justify-between gap-4 login-rise">
-          <div className="flex items-center gap-3">
-            <div className="relative grid size-12 place-items-center rounded-2xl border border-cyan-300/30 bg-cyan-300/10 shadow-[0_0_60px_-18px_rgba(125,211,252,0.9)]">
-              <div className="absolute inset-1 rounded-xl border border-dashed border-cyan-200/30 login-orbit" />
-              <CandlestickChart className="size-5 text-cyan-200" />
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-cyan-200/80">
-                TradeTrack
-              </p>
-              <p className="text-sm text-zinc-500">Private command center</p>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-56 items-end justify-center gap-4 opacity-30">
+        {candleHeights.map((height, index) => (
+          <span
+            className="login-candle w-3 rounded-t-full bg-gradient-to-t from-cyan-500/0 via-cyan-300/50 to-amber-200/70"
+            key={`${height}-${index}`}
+            style={{
+              animationDelay: `${index * 130}ms`,
+              height: `${height}px`,
+            }}
+          />
+        ))}
+      </div>
+
+      <section className="relative z-10 w-full max-w-[31rem] login-rise">
+        <div className="absolute -inset-8 rounded-[48px] bg-gradient-to-br from-cyan-300/20 via-transparent to-amber-300/10 blur-2xl" />
+        <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-[#101722]/88 p-6 shadow-[0_40px_120px_-55px_rgba(0,0,0,0.95)] backdrop-blur-xl sm:p-8">
+          <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent login-scan" />
+          <div className="mb-8 flex justify-center">
+            <div className="relative grid size-16 place-items-center rounded-[24px] border border-cyan-300/30 bg-cyan-300/10 shadow-[0_0_70px_-18px_rgba(125,211,252,0.95)]">
+              <div className="absolute inset-1 rounded-[19px] border border-dashed border-cyan-200/35 login-orbit" />
+              <div className="absolute inset-0 rounded-[24px] border border-cyan-200/20 login-pulse-ring" />
+              <CandlestickChart className="size-7 text-cyan-100" />
             </div>
           </div>
-        </div>
 
-        <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,0.98fr)_minmax(390px,520px)]">
-          <section className="min-w-0 space-y-6 login-rise [animation-delay:120ms]">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-emerald-100 shadow-[0_0_50px_-28px_rgba(52,211,153,0.8)]">
-              <span className="size-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(52,211,153,0.9)]" />
-              Learn. Trade. Repeat.
-            </div>
+          <h1 className="text-center text-4xl font-semibold tracking-[-0.04em] text-zinc-50">
+            Sign In
+          </h1>
 
-            <div className="space-y-5">
-              <h1 className="max-w-3xl text-[clamp(3.25rem,6.6vw,6.7rem)] font-semibold leading-[0.92] tracking-[-0.06em] text-zinc-50">
-                Master every session before the market tests you.
-              </h1>
-              <p className="max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
-                Plan with focus, journal with honesty, and turn every trading
-                day into a cleaner decision loop.
-              </p>
-            </div>
+          <FlashBanner code={flashCode} />
 
-            <FlashBanner code={flashCode} />
-
-            <div className="relative overflow-hidden rounded-[30px] border border-cyan-200/15 bg-cyan-200/[0.045] p-5 shadow-[0_24px_90px_-60px_rgba(34,211,238,0.9)] backdrop-blur">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent login-scan" />
-              <p className="text-xs uppercase tracking-[0.28em] text-cyan-200/70">
-                Session mantra
-              </p>
-              <blockquote className="mt-3 text-2xl font-semibold leading-snug tracking-tight text-zinc-50 sm:text-3xl">
-                &quot;Learn the setup. Trade the plan. Review the result. Repeat.&quot;
-              </blockquote>
-              <div className="mt-5 flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">
-                {quoteSteps.map((item) => (
-                  <span
-                    className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5"
-                    key={item}
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="relative min-w-0 login-rise [animation-delay:260ms] lg:sticky lg:top-6 lg:justify-self-end">
-            <div className="absolute -inset-6 rounded-[48px] bg-gradient-to-br from-cyan-300/20 via-transparent to-amber-300/10 blur-2xl" />
-            <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-[#101722]/85 p-6 shadow-[0_40px_120px_-55px_rgba(0,0,0,0.95)] backdrop-blur-xl sm:p-8">
-              <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" />
-              <div className="mb-8 flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-cyan-200/80">
-                    <LockKeyhole className="size-4" />
-                    Auth terminal
-                  </div>
-                  <h2 className="mt-4 text-3xl font-semibold tracking-tight text-zinc-50">
-                    Sign In
-                  </h2>
-                  <p className="mt-2 max-w-sm text-sm leading-6 text-zinc-400">
-                    Enter your username and password to continue.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-100">
-                  Secure
-                </div>
-              </div>
-
-              <form
-                action={signInAction}
+          <form
+            action={signInAction}
+            autoComplete="off"
+            className="mt-8 space-y-5"
+            id="sign-in-form"
+          >
+            <div>
+              <label className={labelClass} htmlFor="login-username">
+                Username
+              </label>
+              <input
                 autoComplete="off"
-                className="space-y-5"
-                id="sign-in-form"
-              >
-                <div>
-                  <label className={labelClass} htmlFor="login-username">
-                    Username
-                  </label>
-                  <input
-                    autoComplete="off"
-                    className={`${inputClass} h-14 border-white/12 bg-black/35 text-base shadow-inner shadow-black/30`}
-                    id="login-username"
-                    name="username"
-                    placeholder="Enter username"
-                    required
-                    type="text"
-                  />
-                </div>
-                <div>
-                  <label className={labelClass} htmlFor="login-password">
-                    Password
-                  </label>
-                  <input
-                    autoComplete="off"
-                    className={`${inputClass} h-14 border-white/12 bg-black/35 text-base shadow-inner shadow-black/30`}
-                    id="login-password"
-                    minLength={8}
-                    name="password"
-                    placeholder="Enter password"
-                    required
-                    type="password"
-                  />
-                </div>
-              </form>
-
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <button
-                  className={`${primaryButtonClass} h-12 gap-2 px-6 shadow-[0_0_45px_-18px_rgba(103,232,249,0.95)]`}
-                  form="sign-in-form"
-                  type="submit"
-                >
-                  Open dashboard
-                  <ArrowRight className="size-4" />
-                </button>
-                <PasswordResetDialog />
-              </div>
+                className={`${inputClass} h-14 border-white/12 bg-black/35 text-base shadow-inner shadow-black/30`}
+                id="login-username"
+                name="username"
+                placeholder="Enter username"
+                required
+                type="text"
+              />
             </div>
-          </section>
+            <div>
+              <label className={labelClass} htmlFor="login-password">
+                Password
+              </label>
+              <input
+                autoComplete="off"
+                className={`${inputClass} h-14 border-white/12 bg-black/35 text-base shadow-inner shadow-black/30`}
+                id="login-password"
+                minLength={8}
+                name="password"
+                placeholder="Enter password"
+                required
+                type="password"
+              />
+            </div>
+          </form>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button
+              className={`${primaryButtonClass} h-12 flex-1 gap-2 px-6 shadow-[0_0_45px_-18px_rgba(103,232,249,0.95)]`}
+              form="sign-in-form"
+              type="submit"
+            >
+              Open dashboard
+              <ArrowRight className="size-4" />
+            </button>
+            <PasswordResetDialog />
+          </div>
         </div>
       </section>
     </main>
