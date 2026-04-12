@@ -78,7 +78,9 @@ function getConfiguredUser(username) {
   const normalizedUsername = normalizeUsername(username);
 
   return authUsers.find(
-    (user) => normalizeUsername(user.username) === normalizedUsername,
+    (user) =>
+      normalizeUsername(user.username) === normalizedUsername ||
+      user.aliases?.some((alias) => normalizeUsername(alias) === normalizedUsername),
   );
 }
 

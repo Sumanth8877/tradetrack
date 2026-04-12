@@ -108,17 +108,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             description="Use one of the two provisioned accounts to access the dashboard."
             title="Sign In"
           >
-            <form action={signInAction} className="space-y-4">
+            <form action={signInAction} autoComplete="off" className="space-y-4">
               <div>
                 <label className={labelClass} htmlFor="login-username">
                   Username
                 </label>
                 <input
-                  autoComplete="username"
+                  autoComplete="off"
                   className={inputClass}
                   id="login-username"
                   name="username"
-                  placeholder="Leonsumanth8877"
+                  placeholder="Enter username"
                   required
                   type="text"
                 />
@@ -128,22 +128,27 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   Password
                 </label>
                 <input
-                  autoComplete="current-password"
+                  autoComplete="off"
                   className={inputClass}
                   id="login-password"
                   minLength={8}
                   name="password"
-                  placeholder="At least 8 characters"
+                  placeholder="Enter password"
                   required
                   type="password"
                 />
               </div>
-              <SubmitButton
-                className={primaryButtonClass}
-                pendingLabel="Signing in..."
-              >
-                Open dashboard
-              </SubmitButton>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <SubmitButton
+                  className={primaryButtonClass}
+                  pendingLabel="Signing in..."
+                >
+                  Open dashboard
+                </SubmitButton>
+                <a className={secondaryButtonClass} href="#reset-password">
+                  Reset password
+                </a>
+              </div>
             </form>
             <p className="text-sm leading-6 text-zinc-400">
               Public sign-up is disabled. New access has to be provisioned in
@@ -151,76 +156,85 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </p>
           </SectionCard>
 
-          <SectionCard
-            description="Reset either account with its username, the admin reset key, and a new password."
-            title="Reset Password"
-          >
-            <form action={resetPasswordAction} className="space-y-4">
-              <div>
-                <label className={labelClass} htmlFor="reset-username">
-                  Username
-                </label>
-                <input
-                  autoComplete="username"
-                  className={inputClass}
-                  id="reset-username"
-                  name="username"
-                  placeholder="chandankumar46"
-                  required
-                  type="text"
-                />
-              </div>
-              <div>
-                <label className={labelClass} htmlFor="reset-key">
-                  Admin reset key
-                </label>
-                <input
-                  className={inputClass}
-                  id="reset-key"
-                  name="reset_key"
-                  placeholder="Required for security"
-                  required
-                  type="password"
-                />
-              </div>
-              <div>
-                <label className={labelClass} htmlFor="reset-password">
-                  New password
-                </label>
-                <input
-                  autoComplete="new-password"
-                  className={inputClass}
-                  id="reset-password"
-                  minLength={8}
-                  name="password"
-                  placeholder="At least 8 characters"
-                  required
-                  type="password"
-                />
-              </div>
-              <div>
-                <label className={labelClass} htmlFor="reset-confirm-password">
-                  Confirm password
-                </label>
-                <input
-                  autoComplete="new-password"
-                  className={inputClass}
-                  id="reset-confirm-password"
-                  minLength={8}
-                  name="confirm_password"
-                  placeholder="Repeat new password"
-                  required
-                  type="password"
-                />
-              </div>
-              <SubmitButton
-                className={secondaryButtonClass}
-                pendingLabel="Resetting password..."
+          <div id="reset-password">
+            <SectionCard
+              description="Reset either account with its username, the admin reset key, and a new password."
+              title="Reset Password"
+            >
+              <form
+                action={resetPasswordAction}
+                autoComplete="off"
+                className="space-y-4"
               >
-                Reset password
-              </SubmitButton>
-            </form>
-          </SectionCard>
+                <div>
+                  <label className={labelClass} htmlFor="reset-username">
+                    Username
+                  </label>
+                  <input
+                    autoComplete="off"
+                    className={inputClass}
+                    id="reset-username"
+                    name="username"
+                    placeholder="Enter username"
+                    required
+                    type="text"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor="reset-key">
+                    Admin reset key
+                  </label>
+                  <input
+                    className={inputClass}
+                    id="reset-key"
+                    name="reset_key"
+                    placeholder="Enter reset key"
+                    required
+                    type="password"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor="reset-new-password">
+                    New password
+                  </label>
+                  <input
+                    autoComplete="off"
+                    className={inputClass}
+                    id="reset-new-password"
+                    minLength={8}
+                    name="password"
+                    placeholder="Enter new password"
+                    required
+                    type="password"
+                  />
+                </div>
+                <div>
+                  <label
+                    className={labelClass}
+                    htmlFor="reset-confirm-password"
+                  >
+                    Confirm password
+                  </label>
+                  <input
+                    autoComplete="off"
+                    className={inputClass}
+                    id="reset-confirm-password"
+                    minLength={8}
+                    name="confirm_password"
+                    placeholder="Confirm new password"
+                    required
+                    type="password"
+                  />
+                </div>
+                <SubmitButton
+                  className={secondaryButtonClass}
+                  pendingLabel="Resetting password..."
+                >
+                  Reset password
+                </SubmitButton>
+              </form>
+            </SectionCard>
+          </div>
         </div>
       </div>
     </main>

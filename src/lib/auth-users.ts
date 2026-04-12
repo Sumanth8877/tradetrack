@@ -1,6 +1,7 @@
 import authUsers from "../../config/auth-users.json";
 
 type AuthUser = {
+  aliases?: string[];
   email: string;
   username: string;
 };
@@ -14,7 +15,11 @@ export function getAuthUserByUsername(username: string): AuthUser | null {
 
   return (
     authUsers.find(
-      (user) => normalizeUsername(user.username) === normalizedUsername,
+      (user) =>
+        normalizeUsername(user.username) === normalizedUsername ||
+        user.aliases?.some(
+          (alias) => normalizeUsername(alias) === normalizedUsername,
+        ),
     ) ?? null
   );
 }
