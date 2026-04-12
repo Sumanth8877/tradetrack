@@ -51,3 +51,94 @@ a {
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(0.75);
 }
+
+@keyframes login-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes login-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(18px, -24px, 0) scale(1.08);
+  }
+}
+
+@keyframes login-scan {
+  from {
+    transform: translateX(-45%);
+  }
+
+  to {
+    transform: translateX(45%);
+  }
+}
+
+@keyframes login-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes login-ticker {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.login-grid {
+  background-image:
+    linear-gradient(rgba(125, 211, 252, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.09) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at 50% 28%, black, transparent 70%);
+}
+
+.login-orbit {
+  animation: login-orbit 22s linear infinite;
+}
+
+.login-drift {
+  animation: login-drift 8s ease-in-out infinite;
+}
+
+.login-scan {
+  animation: login-scan 5s ease-in-out infinite alternate;
+}
+
+.login-rise {
+  animation: login-rise 700ms ease both;
+}
+
+.login-ticker {
+  animation: login-ticker 24s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-orbit,
+  .login-drift,
+  .login-scan,
+  .login-rise,
+  .login-ticker {
+    animation: none;
+  }
+}
