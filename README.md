@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TradeTrack
 
-## Getting Started
+TradeTrack is a full-stack trading journal built with Next.js, Supabase, Tailwind CSS, and the OpenAI API. It focuses on low-friction journaling, simple daily planning, and cached AI feedback that stays within a small token budget.
 
-First, run the development server:
+## Stack
+
+- Next.js App Router
+- Supabase Auth, Postgres, and Storage
+- Tailwind CSS v4
+- OpenAI Responses API
+- Vercel-ready deployment
+
+## Features
+
+- Email/password authentication with Supabase
+- Daily checklist for trading routines
+- Attendance tracker for session discipline
+- Trade journal with screenshot uploads
+- Mistake tracker with severity scoring
+- Cached daily insight after trade logging
+- Cached weekly summary with win rate and common mistakes
+- Local pattern detection for overtrading, loss streaks, and strongest trade types
+
+## AI Budget Controls
+
+- TradeTrack stores AI results in `ai_insights` to avoid repeated calls.
+- Daily generation is capped at `2` AI runs per user per day.
+- The daily insight is only generated after a trade is logged.
+- Weekly summaries reuse the cached result for the same 7-day window.
+- Pattern detection is calculated locally so the model only writes concise advice.
+
+## Local Setup
+
+1. Copy `.env.example` to `.env.local`.
+2. Create a Supabase project.
+3. In the Supabase SQL editor, run [`supabase/schema.sql`](./supabase/schema.sql).
+4. Enable email/password auth in Supabase.
+5. Add the values below to `.env.local`.
+6. Start the app with `npm run dev`.
+
+### Required Environment Variables
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-5-nano
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`OPENAI_MODEL` is optional. The default is `gpt-5-nano` to keep costs low for short summaries.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Notes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Trades, mistakes, tasks, attendance records, and AI insights are protected by RLS.
+- Screenshot uploads go to the `trade-screenshots` bucket.
+- The app uses per-user folder paths in storage: `<user-id>/<uuid>.<ext>`.
 
-## Learn More
+## Deploying to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push the project to GitHub.
+2. Import the repository into Vercel.
+3. Add the same environment variables from `.env.local` in the Vercel project.
+4. Deploy.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Supabase and OpenAI keys are the only required secrets. No service role key is needed for the current implementation.
