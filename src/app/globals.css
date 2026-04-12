@@ -144,12 +144,110 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
+@keyframes login-border-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes login-float-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes login-beacon {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+
+  45% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  70% {
+    opacity: 0.45;
+    transform: scale(1.3);
+  }
+}
+
+@keyframes login-glimmer {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(12deg);
+  }
+
+  20%,
+  60% {
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 0;
+    transform: translate3d(240%, 0, 0) rotate(12deg);
+  }
+}
+
+@keyframes login-radar-sweep {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes login-market-trace {
+  0%,
+  100% {
+    stroke-dashoffset: 1.2;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes login-title-shine {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .login-grid {
   background-image:
     linear-gradient(rgba(125, 211, 252, 0.09) 1px, transparent 1px),
     linear-gradient(90deg, rgba(125, 211, 252, 0.09) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: radial-gradient(circle at 50% 28%, black, transparent 70%);
+}
+
+.login-noise {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.06) 0, transparent 26%),
+    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.04) 0, transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 18%, rgba(255, 255, 255, 0.02) 82%, transparent);
+  mix-blend-mode: screen;
+  opacity: 0.22;
 }
 
 .login-orbit {
@@ -186,6 +284,91 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   transform-origin: bottom;
 }
 
+.login-spotlight {
+  background:
+    radial-gradient(circle at var(--login-pointer-x) var(--login-pointer-y), rgba(125, 211, 252, 0.18), transparent 18%),
+    radial-gradient(circle at calc(var(--login-pointer-x) + 8%) calc(var(--login-pointer-y) - 12%), rgba(245, 158, 11, 0.12), transparent 24%);
+  mix-blend-mode: screen;
+}
+
+.login-radar {
+  background:
+    radial-gradient(circle at center, rgba(34, 211, 238, 0.08), transparent 32%),
+    repeating-radial-gradient(circle at center, rgba(125, 211, 252, 0.09) 0 1px, transparent 1px 84px);
+  mask-image: radial-gradient(circle at center, transparent 0, black 14%, black 60%, transparent 78%);
+  opacity: 0.38;
+}
+
+.login-radar-sweep {
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(34, 211, 238, 0.15) 32deg, transparent 68deg);
+  mask-image: radial-gradient(circle at center, transparent 0, black 12%, black 58%, transparent 74%);
+  opacity: 0.82;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  animation: login-radar-sweep 12s linear infinite;
+}
+
+.login-card-shell {
+  position: relative;
+  transform:
+    perspective(1800px)
+    rotateX(var(--login-tilt-x))
+    rotateY(var(--login-tilt-y))
+    translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 180ms ease, filter 180ms ease;
+  filter: drop-shadow(0 45px 110px rgba(2, 12, 27, 0.7));
+}
+
+.login-card-shell::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 44px;
+  background: radial-gradient(circle at var(--login-pointer-x) var(--login-pointer-y), rgba(125, 211, 252, 0.18), transparent 22%);
+  opacity: 0.6;
+  filter: blur(28px);
+}
+
+.login-card-border {
+  animation: login-border-spin 16s linear infinite;
+}
+
+.login-float-slow {
+  animation: login-float-slow 9s ease-in-out infinite;
+}
+
+.login-beacon {
+  animation: login-beacon 3.2s ease-in-out infinite;
+}
+
+.login-glimmer {
+  animation: login-glimmer 5.6s ease-in-out infinite;
+}
+
+.login-market-trace {
+  fill: none;
+  stroke-dasharray: 0.25 0.75;
+  animation: login-market-trace 8s linear infinite;
+  filter: drop-shadow(0 0 18px rgba(103, 232, 249, 0.45));
+}
+
+.login-market-trace-faint {
+  fill: none;
+  stroke-dasharray: 0.02 0.08;
+  animation: login-market-trace 11s linear infinite reverse;
+}
+
+.login-title {
+  background-image: linear-gradient(135deg, #f8fafc 0%, #ffffff 34%, #7dd3fc 62%, #fde68a 100%);
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: login-title-shine 7s ease-in-out infinite;
+  text-shadow: 0 0 38px rgba(125, 211, 252, 0.14);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .login-orbit,
   .login-drift,
@@ -194,7 +377,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .login-ticker,
   .login-aurora,
   .login-pulse-ring,
-  .login-candle {
+  .login-candle,
+  .login-card-border,
+  .login-float-slow,
+  .login-beacon,
+  .login-glimmer,
+  .login-radar-sweep,
+  .login-market-trace,
+  .login-market-trace-faint,
+  .login-title {
     animation: none;
+  }
+
+  .login-card-shell {
+    transform: none;
   }
 }
