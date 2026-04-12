@@ -75,8 +75,13 @@ export function LoginStage({ children }: LoginStageProps) {
       <div className="login-noise pointer-events-none absolute inset-0 opacity-40" />
       <div className="login-aurora pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(34,211,238,0.22),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(245,158,11,0.18),transparent_27%),radial-gradient(circle_at_50%_86%,rgba(16,185,129,0.14),transparent_34%)]" />
       <div className="login-spotlight pointer-events-none absolute inset-0" />
+      <div className="login-holo-panel login-holo-panel-a pointer-events-none absolute left-1/2 top-1/2 h-[28rem] w-[22rem] -translate-x-[58%] -translate-y-[55%]" />
+      <div className="login-holo-panel login-holo-panel-b pointer-events-none absolute left-1/2 top-1/2 h-[24rem] w-[18rem] -translate-x-[-8%] -translate-y-[22%]" />
+      <div className="login-holo-panel login-holo-panel-c pointer-events-none absolute left-1/2 top-1/2 h-[34rem] w-[26rem] -translate-x-[8%] -translate-y-[50%]" />
       <div className="login-radar pointer-events-none absolute left-1/2 top-1/2 size-[72rem] -translate-x-1/2 -translate-y-1/2" />
       <div className="login-radar-sweep pointer-events-none absolute left-1/2 top-1/2 size-[72rem] -translate-x-1/2 -translate-y-1/2" />
+      <div className="login-hud-ring pointer-events-none absolute left-1/2 top-1/2 size-[58rem] -translate-x-1/2 -translate-y-1/2" />
+      <div className="login-hud-ring login-hud-ring-alt pointer-events-none absolute left-1/2 top-1/2 size-[42rem] -translate-x-1/2 -translate-y-1/2" />
       <div className="pointer-events-none absolute left-1/2 top-1/2 size-[54rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/8" />
       <div className="pointer-events-none absolute left-1/2 top-1/2 size-[39rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-cyan-200/10 login-orbit" />
       <div className="pointer-events-none absolute left-1/2 top-1/2 size-[24rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-200/10 login-float-slow" />
@@ -162,8 +167,10 @@ export function LoginStage({ children }: LoginStageProps) {
         <div className="login-card-shell">
           <div className="login-card-border absolute -inset-px rounded-[38px] bg-[conic-gradient(from_0deg,rgba(34,211,238,0.22),rgba(255,255,255,0.02),rgba(245,158,11,0.22),rgba(255,255,255,0.02),rgba(34,211,238,0.22))] opacity-90 blur-[2px]" />
           <div className="absolute -inset-10 rounded-[52px] bg-gradient-to-br from-cyan-300/22 via-transparent to-amber-300/14 blur-3xl" />
-          <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-[#101722]/88 p-6 shadow-[0_40px_120px_-55px_rgba(0,0,0,0.95)] backdrop-blur-2xl sm:p-8">
+          <div className="login-card-frame relative overflow-hidden rounded-[36px] border border-white/10 bg-[#101722]/88 p-6 shadow-[0_40px_120px_-55px_rgba(0,0,0,0.95)] backdrop-blur-2xl sm:p-8">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(125,211,252,0.18),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_42%,rgba(255,255,255,0.02))]" />
+            <div className="login-card-grid pointer-events-none absolute inset-0" />
+            <div className="login-card-scanlines pointer-events-none absolute inset-0" />
             <div className="pointer-events-none absolute inset-x-6 top-5 flex items-center justify-between">
               <span className="h-px w-14 bg-gradient-to-r from-cyan-200/0 via-cyan-200/55 to-cyan-200/0" />
               <span className="h-2 w-2 rounded-full bg-cyan-200/70 shadow-[0_0_18px_rgba(125,211,252,0.95)] login-beacon" />
@@ -172,6 +179,8 @@ export function LoginStage({ children }: LoginStageProps) {
             <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent login-scan" />
             <div className="login-glimmer absolute -inset-y-8 left-[-30%] w-[35%] rotate-12 bg-gradient-to-r from-transparent via-white/12 to-transparent" />
             <div className="pointer-events-none absolute left-6 top-6 h-7 w-7 border-l border-t border-cyan-200/30" />
+            <div className="pointer-events-none absolute right-6 top-6 h-4 w-10 border-r border-t border-amber-200/20" />
+            <div className="pointer-events-none absolute bottom-6 left-6 h-4 w-10 border-b border-l border-cyan-200/16" />
             <div className="pointer-events-none absolute bottom-6 right-6 h-7 w-7 border-b border-r border-amber-200/25" />
             <div className="relative">{children}</div>
           </div>
