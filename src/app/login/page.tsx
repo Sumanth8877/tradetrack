@@ -128,14 +128,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   return (
-    <main className="relative isolate min-h-screen overflow-hidden bg-[#030711] px-6 py-8 text-zinc-50 sm:px-8 lg:px-10">
+    <main className="relative isolate min-h-screen overflow-x-hidden bg-[#030711] px-5 py-6 text-zinc-50 sm:px-8 lg:px-10">
       <div className="login-grid pointer-events-none absolute inset-0 opacity-70" />
       <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl login-drift" />
       <div className="pointer-events-none absolute right-0 top-0 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-400/10 blur-3xl" />
 
-      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-7xl flex-col justify-center">
-        <div className="mb-8 flex items-center justify-between gap-4 login-rise">
+      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-7xl flex-col justify-center">
+        <div className="mb-6 flex items-center justify-between gap-4 login-rise">
           <div className="flex items-center gap-3">
             <div className="relative grid size-12 place-items-center rounded-2xl border border-cyan-300/30 bg-cyan-300/10 shadow-[0_0_60px_-18px_rgba(125,211,252,0.9)]">
               <div className="absolute inset-1 rounded-xl border border-dashed border-cyan-200/30 login-orbit" />
@@ -153,15 +153,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         </div>
 
-        <div className="grid items-center gap-8 xl:grid-cols-[1.12fr_0.88fr]">
-          <section className="space-y-7 login-rise [animation-delay:120ms]">
+        <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,0.98fr)_minmax(390px,520px)]">
+          <section className="min-w-0 space-y-6 login-rise [animation-delay:120ms]">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-emerald-100 shadow-[0_0_50px_-28px_rgba(52,211,153,0.8)]">
               <span className="size-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(52,211,153,0.9)]" />
               Session control online
             </div>
 
             <div className="space-y-5">
-              <h1 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-zinc-50 sm:text-7xl lg:text-8xl">
+              <h1 className="max-w-3xl text-[clamp(3.25rem,6.6vw,6.7rem)] font-semibold leading-[0.92] tracking-[-0.06em] text-zinc-50">
                 Trade discipline with a sharper command surface.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
@@ -172,7 +172,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
             <FlashBanner code={params.flash} />
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
               {commandCards.map((card, index) => (
                 <div
                   className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-[0_24px_80px_-50px_rgba(0,0,0,0.9)] backdrop-blur login-rise"
@@ -203,7 +203,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </div>
           </section>
 
-          <section className="relative login-rise [animation-delay:260ms]">
+          <section className="relative min-w-0 login-rise [animation-delay:260ms] lg:sticky lg:top-6 lg:justify-self-end">
             <div className="absolute -inset-6 rounded-[48px] bg-gradient-to-br from-cyan-300/20 via-transparent to-amber-300/10 blur-2xl" />
             <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-[#101722]/85 p-6 shadow-[0_40px_120px_-55px_rgba(0,0,0,0.95)] backdrop-blur-xl sm:p-8">
               <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" />
