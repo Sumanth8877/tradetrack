@@ -43,11 +43,29 @@ TradeTrack is a full-stack trading journal built with Next.js, Supabase, Tailwin
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+# Optional: only needed for auth:create-users
+SUPABASE_SERVICE_ROLE_KEY=
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5-nano
 ```
 
-`OPENAI_MODEL` is optional. The default is `gpt-5-nano` to keep costs low for short summaries.
+`OPENAI_MODEL` is optional. The default is `gpt-5-nano` to keep costs low for short summaries. `SUPABASE_SERVICE_ROLE_KEY` is only needed for the admin provisioning script below.
+
+## Provision The Two Login Accounts
+
+TradeTrack is now sign-in only. Create or reset the two allowed users with:
+
+```bash
+npm run auth:create-users -- user1@example.com password123 user2@example.com password456
+```
+
+The script will:
+
+- create missing users in Supabase Auth
+- update passwords for existing users
+- mark both accounts as email-confirmed
+
+Instead of command-line arguments, you can also set `AUTH_USER_1_EMAIL`, `AUTH_USER_1_PASSWORD`, `AUTH_USER_2_EMAIL`, and `AUTH_USER_2_PASSWORD` before running the same script.
 
 ## Database Notes
 
@@ -62,4 +80,4 @@ OPENAI_MODEL=gpt-5-nano
 3. Add the same environment variables from `.env.local` in the Vercel project.
 4. Deploy.
 
-Supabase and OpenAI keys are the only required secrets. No service role key is needed for the current implementation.
+Supabase and OpenAI keys are the only required runtime secrets. The service role key is only needed if you want to run the auth provisioning script.
