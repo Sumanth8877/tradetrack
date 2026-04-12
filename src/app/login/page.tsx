@@ -1,15 +1,8 @@
 import { redirect } from "next/navigation";
 import {
-  Activity,
   ArrowRight,
-  Bot,
   CandlestickChart,
-  CheckCircle2,
-  Clock3,
   LockKeyhole,
-  ShieldCheck,
-  Sparkles,
-  Target,
 } from "lucide-react";
 
 import { signInAction } from "@/app/actions";
@@ -31,49 +24,11 @@ type LoginPageProps = {
   }>;
 };
 
-const commandCards = [
-  {
-    label: "Checklist",
-    value: "Daily",
-    detail: "Rules before entries",
-  },
-  {
-    label: "Journal",
-    value: "8 trades",
-    detail: "Screenshots indexed",
-  },
-  {
-    label: "AI Cache",
-    value: "2 runs",
-    detail: "Daily cost guard",
-  },
-];
-
-const intelligenceCards = [
-  {
-    icon: CheckCircle2,
-    label: "Pre-market",
-    text: "Plan, bias, and discipline checks before the first trade.",
-  },
-  {
-    icon: CandlestickChart,
-    label: "Execution",
-    text: "Entries, exits, P/L, screenshots, and mistake tags in one flow.",
-  },
-  {
-    icon: Bot,
-    label: "Coaching",
-    text: "Cached daily and weekly summaries so feedback stays fast and cheap.",
-  },
-];
-
-const tickerItems = [
-  "Risk locked",
-  "Journal ready",
-  "Screenshots secured",
-  "AI capped",
-  "RLS protected",
-  "Two-user access",
+const quoteSteps = [
+  "Learn the setup",
+  "Trade the plan",
+  "Review the result",
+  "Repeat with discipline",
 ];
 
 function SetupState({ flashCode }: { flashCode?: string }) {
@@ -113,9 +68,10 @@ function SetupState({ flashCode }: { flashCode?: string }) {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
+  const flashCode = params.flash === "signed_out" ? undefined : params.flash;
 
   if (!hasSupabaseEnv()) {
-    return <SetupState flashCode={params.flash} />;
+    return <SetupState flashCode={flashCode} />;
   }
 
   const supabase = await createClient();
@@ -148,54 +104,41 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               <p className="text-sm text-zinc-500">Private command center</p>
             </div>
           </div>
-          <div className="hidden rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs uppercase tracking-[0.24em] text-zinc-400 backdrop-blur md:block">
-            Two-user access only
-          </div>
         </div>
 
         <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,0.98fr)_minmax(390px,520px)]">
           <section className="min-w-0 space-y-6 login-rise [animation-delay:120ms]">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-emerald-100 shadow-[0_0_50px_-28px_rgba(52,211,153,0.8)]">
               <span className="size-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(52,211,153,0.9)]" />
-              Session control online
+              Learn. Trade. Repeat.
             </div>
 
             <div className="space-y-5">
               <h1 className="max-w-3xl text-[clamp(3.25rem,6.6vw,6.7rem)] font-semibold leading-[0.92] tracking-[-0.06em] text-zinc-50">
-                Trade discipline with a sharper command surface.
+                Master every session before the market tests you.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
-                Track checklist execution, trading attendance, screenshots,
-                mistakes, and cached AI feedback from one locked-down dashboard.
+                Plan with focus, journal with honesty, and turn every trading
+                day into a cleaner decision loop.
               </p>
             </div>
 
-            <FlashBanner code={params.flash} />
+            <FlashBanner code={flashCode} />
 
-            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-              {commandCards.map((card, index) => (
-                <div
-                  className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-[0_24px_80px_-50px_rgba(0,0,0,0.9)] backdrop-blur login-rise"
-                  key={card.label}
-                  style={{ animationDelay: `${220 + index * 90}ms` }}
-                >
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent login-scan" />
-                  <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-                    {card.label}
-                  </p>
-                  <p className="mt-3 text-2xl font-semibold text-zinc-50">
-                    {card.value}
-                  </p>
-                  <p className="mt-1 text-sm text-zinc-500">{card.detail}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="overflow-hidden rounded-full border border-white/10 bg-black/30 py-3 text-xs uppercase tracking-[0.26em] text-zinc-400">
-              <div className="flex min-w-max gap-8 login-ticker">
-                {[...tickerItems, ...tickerItems].map((item, index) => (
-                  <span className="flex items-center gap-3" key={`${item}-${index}`}>
-                    <span className="size-1.5 rounded-full bg-cyan-300" />
+            <div className="relative overflow-hidden rounded-[30px] border border-cyan-200/15 bg-cyan-200/[0.045] p-5 shadow-[0_24px_90px_-60px_rgba(34,211,238,0.9)] backdrop-blur">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent login-scan" />
+              <p className="text-xs uppercase tracking-[0.28em] text-cyan-200/70">
+                Session mantra
+              </p>
+              <blockquote className="mt-3 text-2xl font-semibold leading-snug tracking-tight text-zinc-50 sm:text-3xl">
+                &quot;Learn the setup. Trade the plan. Review the result. Repeat.&quot;
+              </blockquote>
+              <div className="mt-5 flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">
+                {quoteSteps.map((item) => (
+                  <span
+                    className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5"
+                    key={item}
+                  >
                     {item}
                   </span>
                 ))}
@@ -217,8 +160,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                     Sign In
                   </h2>
                   <p className="mt-2 max-w-sm text-sm leading-6 text-zinc-400">
-                    Use one of the two provisioned usernames to enter the
-                    dashboard.
+                    Enter your username and password to continue.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-100">
@@ -274,52 +216,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 </button>
                 <PasswordResetDialog />
               </div>
-
-              <div className="mt-6 grid gap-3 text-sm text-zinc-400 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-                  <ShieldCheck className="mb-3 size-5 text-cyan-200" />
-                  Supabase RLS keeps each trader isolated by user id.
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-                  <Clock3 className="mb-3 size-5 text-amber-200" />
-                  AI summaries are cached with daily caps.
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {intelligenceCards.map((card, index) => {
-                const Icon = card.icon;
-
-                return (
-                  <div
-                    className="rounded-[26px] border border-white/10 bg-white/[0.04] p-4 text-sm text-zinc-400 backdrop-blur login-rise"
-                    key={card.label}
-                    style={{ animationDelay: `${360 + index * 90}ms` }}
-                  >
-                    <Icon className="mb-3 size-5 text-cyan-200" />
-                    <p className="font-semibold text-zinc-100">{card.label}</p>
-                    <p className="mt-2 leading-6">{card.text}</p>
-                  </div>
-                );
-              })}
             </div>
           </section>
-        </div>
-
-        <div className="mt-8 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.22em] text-zinc-500 login-rise [animation-delay:520ms]">
-          <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-4 py-2">
-            <Activity className="size-4 text-emerald-300" />
-            Live journal
-          </span>
-          <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-4 py-2">
-            <Target className="size-4 text-amber-300" />
-            Mistake review
-          </span>
-          <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-4 py-2">
-            <Sparkles className="size-4 text-cyan-300" />
-            Cached coaching
-          </span>
         </div>
       </section>
     </main>
