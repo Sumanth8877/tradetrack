@@ -23,7 +23,7 @@ export function PasswordResetDialog() {
         Reset password
       </button>
       <dialog
-        className="w-[min(92vw,34rem)] rounded-[28px] border border-white/10 bg-[#11141c] p-0 text-zinc-100 shadow-[0_28px_120px_-48px_rgba(0,0,0,0.95)] backdrop:bg-black/75"
+        className="fixed left-1/2 top-1/2 m-0 max-h-[90vh] w-[min(92vw,34rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[28px] border border-white/10 bg-[#11141c] p-0 text-zinc-100 shadow-[0_28px_120px_-48px_rgba(0,0,0,0.95)] backdrop:bg-black/75"
         ref={dialogRef}
       >
         <div className="space-y-6 p-6">
