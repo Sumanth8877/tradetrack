@@ -7,11 +7,6 @@ type FlashMessage = {
 };
 
 const FLASH_MESSAGES: Record<string, FlashMessage> = {
-  account_created: {
-    message: "Check your inbox and confirm the account before signing in.",
-    title: "Account created",
-    tone: "success",
-  },
   ai_limit: {
     message: "TradeTrack stores AI results and caps insight generation at two runs per day.",
     title: "AI limit reached",
@@ -43,7 +38,7 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     tone: "error",
   },
   login_failed: {
-    message: "Check your credentials or confirm your email first.",
+    message: "Check your credentials or ask the admin to confirm the account setup in Supabase Auth.",
     title: "Sign-in failed",
     tone: "error",
   },

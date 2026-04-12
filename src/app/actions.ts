@@ -1,6 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -59,37 +58,6 @@ async function requireSupabaseUser() {
   }
 
   return { supabase, user };
-}
-
-export async function signUpAction(formData: FormData) {
-  if (!hasSupabaseEnv()) {
-    redirect("/login?flash=env_missing");
-  }
-
-  const email = toRequiredString(formData.get("email"));
-  const password = toRequiredString(formData.get("password"));
-
-  if (!z.string().email().safeParse(email).success || password.length < 8) {
-    redirect("/login?flash=invalid_input");
-  }
-
-  const supabase = await createClient();
-  const requestHeaders = await headers();
-  const origin = requestHeaders.get("origin") ?? "http://localhost:3000";
-
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback`,
-    },
-  });
-
-  if (error) {
-    redirect("/login?flash=login_failed");
-  }
-
-  redirect("/login?flash=account_created");
 }
 
 export async function signInAction(formData: FormData) {

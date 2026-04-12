@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { signInAction, signUpAction } from "@/app/actions";
+import { signInAction } from "@/app/actions";
 import { FlashBanner } from "@/components/flash-banner";
 import { SectionCard } from "@/components/section-card";
 import { SubmitButton } from "@/components/submit-button";
@@ -9,7 +9,6 @@ import {
   inputClass,
   labelClass,
   primaryButtonClass,
-  secondaryButtonClass,
   subtleBadgeClass,
 } from "@/lib/styles";
 import { createClient } from "@/lib/supabase/server";
@@ -105,7 +104,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         <div className="space-y-6">
           <SectionCard
-            description="Use your existing account to access the dashboard."
+            description="Use one of the two provisioned accounts to access the dashboard."
             title="Sign In"
           >
             <form action={signInAction} className="space-y-4">
@@ -143,47 +142,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 Open dashboard
               </SubmitButton>
             </form>
-          </SectionCard>
-
-          <SectionCard
-            description="Create a fresh account. Supabase email confirmation is enabled through the callback route."
-            title="Create Account"
-          >
-            <form action={signUpAction} className="space-y-4">
-              <div>
-                <label className={labelClass} htmlFor="signup-email">
-                  Email
-                </label>
-                <input
-                  className={inputClass}
-                  id="signup-email"
-                  name="email"
-                  placeholder="trader@example.com"
-                  required
-                  type="email"
-                />
-              </div>
-              <div>
-                <label className={labelClass} htmlFor="signup-password">
-                  Password
-                </label>
-                <input
-                  className={inputClass}
-                  id="signup-password"
-                  minLength={8}
-                  name="password"
-                  placeholder="At least 8 characters"
-                  required
-                  type="password"
-                />
-              </div>
-              <SubmitButton
-                className={secondaryButtonClass}
-                pendingLabel="Creating account..."
-              >
-                Create account
-              </SubmitButton>
-            </form>
+            <p className="text-sm leading-6 text-zinc-400">
+              Public sign-up is disabled. New access has to be provisioned in
+              Supabase Auth first.
+            </p>
           </SectionCard>
         </div>
       </div>
