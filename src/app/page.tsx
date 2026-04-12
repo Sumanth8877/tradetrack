@@ -56,7 +56,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
           <div className="flex flex-col items-start gap-3 lg:items-end">
             <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-300">
-              Signed in as {dashboard.userEmail ?? "anonymous trader"}
+              Signed in as {dashboard.username ?? "anonymous trader"}
             </div>
             <form action={signOutAction}>
               <SubmitButton

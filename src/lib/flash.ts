@@ -38,7 +38,7 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     tone: "error",
   },
   login_failed: {
-    message: "Check your credentials or ask the admin to confirm the account setup in Supabase Auth.",
+    message: "Check your username and password or ask the admin to confirm the account setup.",
     title: "Sign-in failed",
     tone: "error",
   },
@@ -51,6 +51,21 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     message: "Add trades or mistakes in the last seven days before generating a summary.",
     title: "Not enough data",
     tone: "info",
+  },
+  password_reset: {
+    message: "Password reset complete. Sign in with the new password.",
+    title: "Password updated",
+    tone: "success",
+  },
+  reset_failed: {
+    message: "Password reset failed. Check the username, reset key, and Supabase user setup.",
+    title: "Reset failed",
+    tone: "error",
+  },
+  reset_unavailable: {
+    message: "Add SUPABASE_SERVICE_ROLE_KEY and PASSWORD_RESET_ADMIN_KEY to enable username password resets.",
+    title: "Reset unavailable",
+    tone: "error",
   },
   signed_in: {
     message: "Your workspace is ready.",

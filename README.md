@@ -34,7 +34,7 @@ TradeTrack is a full-stack trading journal built with Next.js, Supabase, Tailwin
 1. Copy `.env.example` to `.env.local`.
 2. Create a Supabase project.
 3. In the Supabase SQL editor, run [`supabase/schema.sql`](./supabase/schema.sql).
-4. Enable email/password auth in Supabase.
+4. Enable email/password auth in Supabase. The app maps usernames to internal auth emails for Supabase.
 5. Add the values below to `.env.local`.
 6. Start the app with `npm run dev`.
 
@@ -43,20 +43,32 @@ TradeTrack is a full-stack trading journal built with Next.js, Supabase, Tailwin
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-# Optional: only needed for auth:create-users
+# Needed for auth:create-users and username password reset
 SUPABASE_SERVICE_ROLE_KEY=
+PASSWORD_RESET_ADMIN_KEY=
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5-nano
 ```
 
-`OPENAI_MODEL` is optional. The default is `gpt-5-nano` to keep costs low for short summaries. `SUPABASE_SERVICE_ROLE_KEY` is only needed for the admin provisioning script below.
+`OPENAI_MODEL` is optional. The default is `gpt-5-nano` to keep costs low for short summaries. Keep `SUPABASE_SERVICE_ROLE_KEY` and `PASSWORD_RESET_ADMIN_KEY` server-side only.
 
 ## Provision The Two Login Accounts
 
-TradeTrack is now sign-in only. Create or reset the two allowed users with:
+TradeTrack is sign-in only and accepts usernames in the UI. The configured users are stored in [`config/auth-users.json`](./config/auth-users.json):
+
+- `Leonsumanth8877`
+- `chandankumar46`
+
+Create or reset both users to the same temporary password with:
 
 ```bash
-npm run auth:create-users -- user1@example.com password123 user2@example.com password456
+npm run auth:create-users -- admin@123
+```
+
+For different passwords per user:
+
+```bash
+npm run auth:create-users -- Leonsumanth8877 password123 chandankumar46 password456
 ```
 
 The script will:
@@ -64,8 +76,11 @@ The script will:
 - create missing users in Supabase Auth
 - update passwords for existing users
 - mark both accounts as email-confirmed
+- store the username in auth user metadata
 
-Instead of command-line arguments, you can also set `AUTH_USER_1_EMAIL`, `AUTH_USER_1_PASSWORD`, `AUTH_USER_2_EMAIL`, and `AUTH_USER_2_PASSWORD` before running the same script.
+Instead of command-line arguments, you can also set `AUTH_DEFAULT_PASSWORD` before running the same script.
+
+The login page also has a password reset form. It requires the username, a new password, and `PASSWORD_RESET_ADMIN_KEY`; username-only reset is intentionally blocked because anyone who knows a username could otherwise take over that account.
 
 ## Database Notes
 
@@ -80,4 +95,4 @@ Instead of command-line arguments, you can also set `AUTH_USER_1_EMAIL`, `AUTH_U
 3. Add the same environment variables from `.env.local` in the Vercel project.
 4. Deploy.
 
-Supabase and OpenAI keys are the only required runtime secrets. The service role key is only needed if you want to run the auth provisioning script.
+Supabase and OpenAI keys are the required runtime secrets. Add the service role key and password reset key if you want to use username password reset in the deployed app.

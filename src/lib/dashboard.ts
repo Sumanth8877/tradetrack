@@ -1,4 +1,5 @@
 import { calculatePatternSnapshot, calculateTaskProgress, calculateTradeStats } from "@/lib/analytics";
+import { getAuthUserByEmail } from "@/lib/auth-users";
 import { coerceInsightPayload, getDateWindow, getTodayKey } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import type { AiInsight, AttendanceRecord, DashboardData, Mistake, Trade } from "@/lib/types";
@@ -127,6 +128,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   const todayTrades = analyticsTrades.filter((trade) => trade.traded_on === today);
   const taskProgress = calculateTaskProgress(tasks);
   const tradeStats = calculateTradeStats(analyticsTrades);
+  const authUser = user.email ? getAuthUserByEmail(user.email) : null;
   const mistakesThisWeek = recentMistakes.filter(
     (mistake) => mistake.occurred_on >= weekStart,
   ).length;
@@ -154,6 +156,6 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     },
     tasks,
     today,
-    userEmail: user.email ?? null,
+    username: authUser?.username ?? null,
   };
 }

@@ -128,5 +128,5 @@ export type DashboardData = {
   stats: DashboardStats;
   tasks: Task[];
   today: string;
-  userEmail: string | null;
+  username: string | null;
 };

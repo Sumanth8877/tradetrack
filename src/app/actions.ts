@@ -5,7 +5,15 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { generateDailyInsightIfNeeded, generateWeeklySummary } from "@/lib/ai";
-import { hasOpenAiEnv, hasSupabaseEnv } from "@/lib/env";
+import { getAuthUserByUsername } from "@/lib/auth-users";
+import {
+  getPasswordResetAdminKey,
+  hasOpenAiEnv,
+  hasPasswordResetEnv,
+  hasSupabaseAdminEnv,
+  hasSupabaseEnv,
+} from "@/lib/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { toNumber, toOptionalString, toRequiredString } from "@/lib/utils";
 
@@ -65,16 +73,21 @@ export async function signInAction(formData: FormData) {
     redirect("/login?flash=env_missing");
   }
 
-  const email = toRequiredString(formData.get("email"));
+  const username = toRequiredString(formData.get("username"));
   const password = toRequiredString(formData.get("password"));
+  const authUser = getAuthUserByUsername(username);
 
-  if (!z.string().email().safeParse(email).success || password.length < 8) {
+  if (password.length < 8) {
     redirect("/login?flash=invalid_input");
+  }
+
+  if (!authUser) {
+    redirect("/login?flash=login_failed");
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
-    email,
+    email: authUser.email,
     password,
   });
 
@@ -83,6 +96,61 @@ export async function signInAction(formData: FormData) {
   }
 
   redirect("/?flash=signed_in");
+}
+
+export async function resetPasswordAction(formData: FormData) {
+  if (!hasSupabaseEnv() || !hasSupabaseAdminEnv() || !hasPasswordResetEnv()) {
+    redirect("/login?flash=reset_unavailable");
+  }
+
+  const username = toRequiredString(formData.get("username"));
+  const resetKey = toRequiredString(formData.get("reset_key"));
+  const password = toRequiredString(formData.get("password"));
+  const confirmPassword = toRequiredString(formData.get("confirm_password"));
+  const authUser = getAuthUserByUsername(username);
+
+  if (password.length < 8 || password !== confirmPassword) {
+    redirect("/login?flash=invalid_input");
+  }
+
+  if (!authUser) {
+    redirect("/login?flash=reset_failed");
+  }
+
+  if (resetKey !== getPasswordResetAdminKey()) {
+    redirect("/login?flash=reset_failed");
+  }
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+
+  if (error) {
+    redirect("/login?flash=reset_failed");
+  }
+
+  const existingUser = data.users.find(
+    (user) => user.email?.toLowerCase() === authUser.email.toLowerCase(),
+  );
+
+  if (!existingUser) {
+    redirect("/login?flash=reset_failed");
+  }
+
+  const { error: updateError } = await supabase.auth.admin.updateUserById(
+    existingUser.id,
+    {
+      password,
+    },
+  );
+
+  if (updateError) {
+    redirect("/login?flash=reset_failed");
+  }
+
+  redirect("/login?flash=password_reset");
 }
 
 export async function signOutAction() {

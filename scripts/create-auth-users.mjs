@@ -4,8 +4,13 @@ import { fileURLToPath } from "node:url";
 
 import { createClient } from "@supabase/supabase-js";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const authUsersPath = path.join(projectRoot, "config", "auth-users.json");
+const authUsers = JSON.parse(fs.readFileSync(authUsersPath, "utf8"));
+
+function normalizeUsername(username) {
+  return username.trim().toLowerCase();
+}
 
 function loadEnvFile(fileName) {
   const filePath = path.join(projectRoot, fileName);
@@ -49,13 +54,13 @@ function printUsage() {
   console.log(
     [
       "Usage:",
-      "  npm run auth:create-users -- <email-1> <password-1> <email-2> <password-2>",
+      "  npm run auth:create-users -- <shared-password>",
+      "  npm run auth:create-users -- <username-1> <password-1> <username-2> <password-2>",
       "",
-      "Or set these environment variables before running the command:",
-      "  AUTH_USER_1_EMAIL",
-      "  AUTH_USER_1_PASSWORD",
-      "  AUTH_USER_2_EMAIL",
-      "  AUTH_USER_2_PASSWORD",
+      "Configured usernames:",
+      ...authUsers.map((user) => `  ${user.username}`),
+      "",
+      "Or set AUTH_DEFAULT_PASSWORD before running the command.",
       "",
       "Required .env.local values:",
       "  NEXT_PUBLIC_SUPABASE_URL",
@@ -69,29 +74,48 @@ function exitWithError(message) {
   process.exit(1);
 }
 
+function getConfiguredUser(username) {
+  const normalizedUsername = normalizeUsername(username);
+
+  return authUsers.find(
+    (user) => normalizeUsername(user.username) === normalizedUsername,
+  );
+}
+
 function parseCredentials() {
   const args = process.argv.slice(2);
 
-  if (args.length === 4) {
-    return [
-      { email: args[0], password: args[1] },
-      { email: args[2], password: args[3] },
-    ];
+  if (args.length === 1) {
+    return authUsers.map((user) => ({
+      ...user,
+      password: args[0],
+    }));
   }
 
-  const envCredentials = [
-    {
-      email: process.env.AUTH_USER_1_EMAIL,
-      password: process.env.AUTH_USER_1_PASSWORD,
-    },
-    {
-      email: process.env.AUTH_USER_2_EMAIL,
-      password: process.env.AUTH_USER_2_PASSWORD,
-    },
-  ];
+  if (args.length === authUsers.length * 2) {
+    const credentials = [];
 
-  if (envCredentials.every((credential) => credential.email && credential.password)) {
-    return envCredentials;
+    for (let index = 0; index < args.length; index += 2) {
+      const configuredUser = getConfiguredUser(args[index]);
+
+      if (!configuredUser) {
+        exitWithError(`Unknown username: ${args[index]}.`);
+      }
+
+      credentials.push({
+        ...configuredUser,
+        password: args[index + 1],
+      });
+    }
+
+    return credentials;
+  }
+
+  if (process.env.AUTH_DEFAULT_PASSWORD) {
+    return authUsers.map((user) => ({
+      ...user,
+      password: process.env.AUTH_DEFAULT_PASSWORD,
+    }));
   }
 
   printUsage();
@@ -99,24 +123,20 @@ function parseCredentials() {
 }
 
 function validateCredentials(credentials) {
-  for (const [index, credential] of credentials.entries()) {
-    const label = `user ${index + 1}`;
-
-    if (!EMAIL_REGEX.test(credential.email)) {
-      exitWithError(`Invalid email for ${label}.`);
-    }
-
-    if (credential.password.length < 8) {
-      exitWithError(`Password for ${label} must be at least 8 characters.`);
-    }
-  }
-
-  const uniqueEmails = new Set(
-    credentials.map((credential) => credential.email.toLowerCase()),
+  const uniqueUsernames = new Set(
+    credentials.map((credential) => normalizeUsername(credential.username)),
   );
 
-  if (uniqueEmails.size !== credentials.length) {
-    exitWithError("The two auth users must have different email addresses.");
+  if (uniqueUsernames.size !== authUsers.length) {
+    exitWithError("Provide exactly one password for each configured username.");
+  }
+
+  for (const credential of credentials) {
+    if (credential.password.length < 8) {
+      exitWithError(
+        `Password for ${credential.username} must be at least 8 characters.`,
+      );
+    }
   }
 }
 
@@ -162,32 +182,38 @@ async function upsertAuthUsers() {
 
   for (const credential of credentials) {
     const existingUser = usersByEmail.get(credential.email.toLowerCase());
+    const attributes = {
+      email_confirm: true,
+      password: credential.password,
+      user_metadata: {
+        username: credential.username,
+      },
+    };
 
     if (existingUser) {
-      const { error } = await supabase.auth.admin.updateUserById(existingUser.id, {
-        email_confirm: true,
-        password: credential.password,
-      });
+      const { error } = await supabase.auth.admin.updateUserById(
+        existingUser.id,
+        attributes,
+      );
 
       if (error) {
-        exitWithError(`Failed to update ${credential.email}: ${error.message}`);
+        exitWithError(`Failed to update ${credential.username}: ${error.message}`);
       }
 
-      console.log(`Updated existing auth user: ${credential.email}`);
+      console.log(`Updated existing auth user: ${credential.username}`);
       continue;
     }
 
     const { error } = await supabase.auth.admin.createUser({
+      ...attributes,
       email: credential.email,
-      email_confirm: true,
-      password: credential.password,
     });
 
     if (error) {
-      exitWithError(`Failed to create ${credential.email}: ${error.message}`);
+      exitWithError(`Failed to create ${credential.username}: ${error.message}`);
     }
 
-    console.log(`Created auth user: ${credential.email}`);
+    console.log(`Created auth user: ${credential.username}`);
   }
 
   console.log("Auth provisioning complete.");

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { signInAction } from "@/app/actions";
+import { resetPasswordAction, signInAction } from "@/app/actions";
 import { FlashBanner } from "@/components/flash-banner";
 import { SectionCard } from "@/components/section-card";
 import { SubmitButton } from "@/components/submit-button";
@@ -9,6 +9,7 @@ import {
   inputClass,
   labelClass,
   primaryButtonClass,
+  secondaryButtonClass,
   subtleBadgeClass,
 } from "@/lib/styles";
 import { createClient } from "@/lib/supabase/server";
@@ -109,16 +110,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           >
             <form action={signInAction} className="space-y-4">
               <div>
-                <label className={labelClass} htmlFor="login-email">
-                  Email
+                <label className={labelClass} htmlFor="login-username">
+                  Username
                 </label>
                 <input
+                  autoComplete="username"
                   className={inputClass}
-                  id="login-email"
-                  name="email"
-                  placeholder="trader@example.com"
+                  id="login-username"
+                  name="username"
+                  placeholder="Leonsumanth8877"
                   required
-                  type="email"
+                  type="text"
                 />
               </div>
               <div>
@@ -126,6 +128,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   Password
                 </label>
                 <input
+                  autoComplete="current-password"
                   className={inputClass}
                   id="login-password"
                   minLength={8}
@@ -146,6 +149,77 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Public sign-up is disabled. New access has to be provisioned in
               Supabase Auth first.
             </p>
+          </SectionCard>
+
+          <SectionCard
+            description="Reset either account with its username, the admin reset key, and a new password."
+            title="Reset Password"
+          >
+            <form action={resetPasswordAction} className="space-y-4">
+              <div>
+                <label className={labelClass} htmlFor="reset-username">
+                  Username
+                </label>
+                <input
+                  autoComplete="username"
+                  className={inputClass}
+                  id="reset-username"
+                  name="username"
+                  placeholder="chandankumar46"
+                  required
+                  type="text"
+                />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="reset-key">
+                  Admin reset key
+                </label>
+                <input
+                  className={inputClass}
+                  id="reset-key"
+                  name="reset_key"
+                  placeholder="Required for security"
+                  required
+                  type="password"
+                />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="reset-password">
+                  New password
+                </label>
+                <input
+                  autoComplete="new-password"
+                  className={inputClass}
+                  id="reset-password"
+                  minLength={8}
+                  name="password"
+                  placeholder="At least 8 characters"
+                  required
+                  type="password"
+                />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="reset-confirm-password">
+                  Confirm password
+                </label>
+                <input
+                  autoComplete="new-password"
+                  className={inputClass}
+                  id="reset-confirm-password"
+                  minLength={8}
+                  name="confirm_password"
+                  placeholder="Repeat new password"
+                  required
+                  type="password"
+                />
+              </div>
+              <SubmitButton
+                className={secondaryButtonClass}
+                pendingLabel="Resetting password..."
+              >
+                Reset password
+              </SubmitButton>
+            </form>
           </SectionCard>
         </div>
       </div>
