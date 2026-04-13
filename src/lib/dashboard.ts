@@ -108,22 +108,33 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   const recentMistakes = (mistakesResult.data ?? []) as Mistake[];
   const recentTrades = (recentTradesResult.data ?? []) as Trade[];
 
-  const tradesWithUrls = await Promise.all(
-    recentTrades.map(async (trade) => {
-      if (!trade.screenshot_path) {
-        return trade;
+  const screenshotPaths = recentTrades
+    .map((trade) => trade.screenshot_path)
+    .filter((path): path is string => Boolean(path));
+  const signedUrlsByPath = new Map<string, string | null>();
+
+  if (screenshotPaths.length > 0) {
+    const { data: signedUrls, error: signedUrlsError } = await supabase.storage
+      .from(SCREENSHOT_BUCKET)
+      .createSignedUrls(screenshotPaths, 60 * 60);
+
+    if (signedUrlsError) {
+      throw signedUrlsError;
+    }
+
+    for (const signedUrl of signedUrls ?? []) {
+      if (signedUrl.path) {
+        signedUrlsByPath.set(signedUrl.path, signedUrl.signedUrl);
       }
+    }
+  }
 
-      const { data } = await supabase.storage
-        .from(SCREENSHOT_BUCKET)
-        .createSignedUrl(trade.screenshot_path, 60 * 60);
-
-      return {
-        ...trade,
-        screenshot_url: data?.signedUrl ?? null,
-      };
-    }),
-  );
+  const tradesWithUrls = recentTrades.map((trade) => ({
+    ...trade,
+    screenshot_url: trade.screenshot_path
+      ? (signedUrlsByPath.get(trade.screenshot_path) ?? null)
+      : null,
+  }));
 
   const todayTrades = analyticsTrades.filter((trade) => trade.traded_on === today);
   const taskProgress = calculateTaskProgress(tasks);

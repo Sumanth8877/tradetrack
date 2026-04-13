@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import {
   AlertTriangle,
   CheckCheck,
@@ -7,6 +8,7 @@ import {
 import { redirect } from "next/navigation";
 
 import { signOutAction } from "@/app/actions";
+import { DashboardLoading } from "@/components/dashboard/dashboard-loading";
 import { DashboardLeftColumn } from "@/components/dashboard/left-column";
 import { DashboardRightColumn } from "@/components/dashboard/right-column";
 import { SetupState } from "@/components/dashboard/setup-state";
@@ -15,6 +17,7 @@ import { FlashBanner } from "@/components/flash-banner";
 import { SubmitButton } from "@/components/submit-button";
 import { getDashboardData } from "@/lib/dashboard";
 import { hasSupabaseEnv } from "@/lib/env";
+import type { DashboardData } from "@/lib/types";
 import { panelClass, secondaryButtonClass, subtleBadgeClass } from "@/lib/styles";
 import { formatDisplayDate, formatPercent, formatSignedNumber } from "@/lib/utils";
 
@@ -24,19 +27,30 @@ type HomePageProps = {
   }>;
 };
 
-export default async function Home({ searchParams }: HomePageProps) {
-  const params = await searchParams;
+type DashboardContentProps = {
+  flashCodePromise: Promise<string | undefined>;
+};
 
-  if (!hasSupabaseEnv()) {
-    return <SetupState flashCode={params.flash} />;
-  }
-
-  const dashboard = await getDashboardData();
+async function DashboardContent({ flashCodePromise }: DashboardContentProps) {
+  const [dashboard, flashCode] = await Promise.all([
+    getDashboardData(),
+    flashCodePromise,
+  ]);
 
   if (!dashboard) {
     redirect("/login?flash=auth_required");
   }
 
+  return <DashboardView dashboard={dashboard} flashCode={flashCode} />;
+}
+
+function DashboardView({
+  dashboard,
+  flashCode,
+}: {
+  dashboard: DashboardData;
+  flashCode?: string;
+}) {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-8 px-6 py-8">
       <header className={panelClass}>
@@ -70,7 +84,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         </div>
       </header>
 
-      <FlashBanner code={params.flash} />
+      <FlashBanner code={flashCode} />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -100,5 +114,20 @@ export default async function Home({ searchParams }: HomePageProps) {
         <DashboardRightColumn dashboard={dashboard} />
       </div>
     </main>
+  );
+}
+
+export default async function Home({ searchParams }: HomePageProps) {
+  if (!hasSupabaseEnv()) {
+    const params = await searchParams;
+    return <SetupState flashCode={params.flash} />;
+  }
+
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardContent
+        flashCodePromise={searchParams.then((params) => params.flash)}
+      />
+    </Suspense>
   );
 }

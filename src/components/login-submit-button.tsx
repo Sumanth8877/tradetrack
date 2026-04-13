@@ -1,17 +1,32 @@
 "use client";
 
 import { ArrowRight, LoaderCircle } from "lucide-react";
-import { useFormStatus } from "react-dom";
+import { useState } from "react";
 
 import { primaryButtonClass } from "@/lib/styles";
 
-export function LoginSubmitButton() {
-  const { pending } = useFormStatus();
+type LoginSubmitButtonProps = {
+  formId: string;
+};
+
+export function LoginSubmitButton({ formId }: LoginSubmitButtonProps) {
+  const [pending, setPending] = useState(false);
 
   return (
     <button
+      aria-busy={pending}
       className={`${primaryButtonClass} group relative flex h-12 w-full items-center justify-center gap-2 overflow-hidden border border-cyan-200/15 px-6 shadow-[0_0_55px_-14px_rgba(103,232,249,0.95)]`}
       disabled={pending}
+      form={formId}
+      onClick={(event) => {
+        const form = event.currentTarget.form;
+
+        if (!form?.reportValidity()) {
+          return;
+        }
+
+        setPending(true);
+      }}
       type="submit"
     >
       <span className="login-glimmer absolute -inset-y-6 left-[-30%] w-[40%] rotate-12 bg-gradient-to-r from-transparent via-white/20 to-transparent" />

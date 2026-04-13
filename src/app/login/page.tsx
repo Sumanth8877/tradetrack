@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import {
-  ArrowRight,
   CandlestickChart,
 } from "lucide-react";
 
 import { signInAction } from "@/app/actions";
 import { FlashBanner } from "@/components/flash-banner";
+import { LoginSubmitButton } from "@/components/login-submit-button";
 import { LoginStage } from "@/components/login-stage";
 import { PasswordResetDialog } from "@/components/password-reset-dialog";
 import { SectionCard } from "@/components/section-card";
@@ -13,7 +13,6 @@ import { hasSupabaseEnv } from "@/lib/env";
 import {
   inputClass,
   labelClass,
-  primaryButtonClass,
   subtleBadgeClass,
 } from "@/lib/styles";
 import { createClient } from "@/lib/supabase/server";
@@ -135,17 +134,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </form>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <button
-          className={`${primaryButtonClass} group relative flex h-12 flex-1 items-center justify-center gap-2 overflow-hidden border border-cyan-200/15 px-6 shadow-[0_0_55px_-14px_rgba(103,232,249,0.95)]`}
-          form="sign-in-form"
-          type="submit"
-        >
-          <span className="login-glimmer absolute -inset-y-6 left-[-30%] w-[40%] rotate-12 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <span className="relative flex items-center gap-2">
-            Open dashboard
-            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </span>
-        </button>
+        <LoginSubmitButton formId="sign-in-form" />
         <PasswordResetDialog />
       </div>
     </LoginStage>
