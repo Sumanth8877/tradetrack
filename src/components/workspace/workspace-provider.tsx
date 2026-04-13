@@ -26,6 +26,12 @@ import {
   workspaceSeed,
 } from "@/lib/workspace-data";
 
+export type WorkspaceSession = {
+  displayName: string;
+  username: string;
+  workspaceUserId: string;
+};
+
 type WorkspaceContextValue = {
   activeUser: WorkspaceUser;
   addJournal: (entry: JournalEntry, attachmentNames?: string[]) => void;
@@ -41,8 +47,11 @@ type WorkspaceContextValue = {
   currentDate: string;
   currentDayEvents: ReturnType<typeof getDayEvents>;
   hydrated: boolean;
+  isSessionUserLocked: boolean;
   resetWorkspace: () => void;
   seed: WorkspaceSeed;
+  session: WorkspaceSession | null;
+  sessionUser: WorkspaceUser | null;
   setActiveUser: (userId: string) => void;
   setCurrentDate: (date: string) => void;
   summary: WorkspaceSummary;
@@ -56,13 +65,47 @@ type WorkspaceContextValue = {
   updateTaskStatus: (taskId: string, status: TaskStatus) => void;
 };
 
-const STORAGE_KEY = "tradetrack-workspace-v2";
+const STORAGE_KEY_PREFIX = "tradetrack-workspace-v3";
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
-const listeners = new Set<() => void>();
+const initializedKeys = new Set<string>();
+const storeListeners = new Map<string, Set<() => void>>();
+const storeSnapshots = new Map<string, WorkspaceSeed>();
 
-let workspaceSnapshot = workspaceSeed;
-let workspaceInitialized = false;
+function getStorageKey(session: WorkspaceSession | null) {
+  return `${STORAGE_KEY_PREFIX}:${session?.workspaceUserId ?? "guest"}`;
+}
+
+function getStoreListeners(storageKey: string) {
+  const existingListeners = storeListeners.get(storageKey);
+
+  if (existingListeners) {
+    return existingListeners;
+  }
+
+  const nextListeners = new Set<() => void>();
+  storeListeners.set(storageKey, nextListeners);
+  return nextListeners;
+}
+
+function coerceSeedForSession(
+  seed: WorkspaceSeed,
+  session: WorkspaceSession | null,
+): WorkspaceSeed {
+  if (session) {
+    return {
+      ...seed,
+      activeUserId: session.workspaceUserId,
+    };
+  }
+
+  const hasValidActiveUser = seed.users.some((user) => user.id === seed.activeUserId);
+
+  return {
+    ...seed,
+    activeUserId: hasValidActiveUser ? seed.activeUserId : workspaceSeed.activeUserId,
+  };
+}
 
 function buildCalendarEventFromTask(task: PlannerTask) {
   return {
@@ -130,20 +173,25 @@ function safeParseSeed(raw: string | null) {
   }
 }
 
-function getSnapshot() {
+function getSnapshot(storageKey: string, session: WorkspaceSession | null) {
   if (typeof window === "undefined") {
-    return workspaceSeed;
+    return coerceSeedForSession(workspaceSeed, session);
   }
 
-  if (!workspaceInitialized) {
-    workspaceSnapshot = safeParseSeed(window.localStorage.getItem(STORAGE_KEY));
-    workspaceInitialized = true;
+  if (!initializedKeys.has(storageKey)) {
+    const storedSeed = safeParseSeed(window.localStorage.getItem(storageKey));
+    storeSnapshots.set(storageKey, coerceSeedForSession(storedSeed, session));
+    initializedKeys.add(storageKey);
   }
 
-  return workspaceSnapshot;
+  return coerceSeedForSession(
+    storeSnapshots.get(storageKey) ?? workspaceSeed,
+    session,
+  );
 }
 
-function subscribe(listener: () => void) {
+function subscribe(storageKey: string, listener: () => void) {
+  const listeners = getStoreListeners(storageKey);
   listeners.add(listener);
 
   return () => {
@@ -151,20 +199,45 @@ function subscribe(listener: () => void) {
   };
 }
 
-function commitSeed(updater: (current: WorkspaceSeed) => WorkspaceSeed) {
-  const next = updater(getSnapshot());
-  workspaceSnapshot = next;
+function commitSeed(
+  storageKey: string,
+  session: WorkspaceSession | null,
+  updater: (current: WorkspaceSeed) => WorkspaceSeed,
+) {
+  const next = coerceSeedForSession(
+    updater(getSnapshot(storageKey, session)),
+    session,
+  );
+  storeSnapshots.set(storageKey, next);
 
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.localStorage.setItem(storageKey, JSON.stringify(next));
   }
 
-  listeners.forEach((listener) => listener());
+  getStoreListeners(storageKey).forEach((listener) => listener());
 }
 
-export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const seed = useSyncExternalStore(subscribe, getSnapshot, () => workspaceSeed);
+export function WorkspaceProvider({
+  children,
+  session = null,
+}: {
+  children: React.ReactNode;
+  session?: WorkspaceSession | null;
+}) {
+  const storageKey = getStorageKey(session);
+  const seed = useSyncExternalStore(
+    (listener) => subscribe(storageKey, listener),
+    () => getSnapshot(storageKey, session),
+    () => coerceSeedForSession(workspaceSeed, session),
+  );
   const activeUser = useMemo(() => getUser(seed, seed.activeUserId), [seed]);
+  const sessionUser = useMemo(
+    () =>
+      session
+        ? seed.users.find((user) => user.id === session.workspaceUserId) ?? null
+        : null,
+    [seed, session],
+  );
   const summary = useMemo(() => summarizeWorkspace(seed, seed.activeUserId), [seed]);
   const currentDayEvents = useMemo(() => getDayEvents(seed, seed.currentDate), [seed]);
 
@@ -179,7 +252,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         );
 
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             attachments: [...attachments, ...current.attachments],
             journalEntries: [entry, ...current.journalEntries],
@@ -188,7 +261,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       },
       addNote(note) {
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             notes: [note, ...current.notes],
           }));
@@ -196,7 +269,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       },
       addResource(resource) {
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             resources: [resource, ...current.resources],
           }));
@@ -209,7 +282,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         };
 
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             attachments: [attachment, ...current.attachments],
           }));
@@ -223,7 +296,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         );
 
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             attachments: [...attachments, ...current.attachments],
             calendarEvents: [
@@ -244,7 +317,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         const after = createdAttachments[1]?.id ?? null;
 
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             attachments: [...createdAttachments, ...current.attachments],
             calendarEvents: [
@@ -269,26 +342,39 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       currentDate: seed.currentDate,
       currentDayEvents,
       hydrated: true,
+      isSessionUserLocked: Boolean(sessionUser),
       resetWorkspace() {
         startTransition(() => {
-          commitSeed(() => workspaceSeed);
+          commitSeed(storageKey, session, () => workspaceSeed);
         });
       },
       seed,
+      session,
+      sessionUser,
       setActiveUser(userId) {
+        if (sessionUser) {
+          return;
+        }
+
         startTransition(() => {
-          commitSeed((current) => ({ ...current, activeUserId: userId }));
+          commitSeed(storageKey, session, (current) => ({
+            ...current,
+            activeUserId: userId,
+          }));
         });
       },
       setCurrentDate(date) {
         startTransition(() => {
-          commitSeed((current) => ({ ...current, currentDate: date }));
+          commitSeed(storageKey, session, (current) => ({
+            ...current,
+            currentDate: date,
+          }));
         });
       },
       summary,
       toggleNoteFavorite(noteId) {
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             notes: current.notes.map((note) =>
               note.id === noteId ? { ...note, favorite: !note.favorite } : note,
@@ -298,7 +384,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       },
       toggleNotePinned(noteId) {
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             notes: current.notes.map((note) =>
               note.id === noteId ? { ...note, pinned: !note.pinned } : note,
@@ -308,7 +394,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       },
       updateNoteBody(noteId, bodyHtml, changedBy) {
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             notes: current.notes.map((note) =>
               note.id === noteId
@@ -332,7 +418,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       },
       updateResourceStatus(resourceId, status) {
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             resources: current.resources.map((resource) =>
               resource.id === resourceId
@@ -351,7 +437,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       },
       updateTaskStatus(taskId, status) {
         startTransition(() => {
-          commitSeed((current) => ({
+          commitSeed(storageKey, session, (current) => ({
             ...current,
             calendarEvents: current.calendarEvents.map((event) =>
               event.id === `cal-${taskId}`
@@ -373,7 +459,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         });
       },
     }),
-    [activeUser, currentDayEvents, seed, summary],
+    [activeUser, currentDayEvents, seed, session, sessionUser, storageKey, summary],
   );
 
   return (

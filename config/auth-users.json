@@ -2,10 +2,14 @@
   {
     "username": "Leonsumanth8877",
     "aliases": ["Leonsumanth887"],
-    "email": "leonsumanth8877@tradetrack.invalid"
+    "email": "leonsumanth8877@tradetrack.invalid",
+    "displayName": "Sumanth",
+    "workspaceUserId": "user-sumanth"
   },
   {
     "username": "chandankumar46",
-    "email": "chandankumar46@tradetrack.invalid"
+    "email": "chandankumar46@tradetrack.invalid",
+    "displayName": "Chandan",
+    "workspaceUserId": "user-chandan"
   }
 ]

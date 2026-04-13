@@ -91,6 +91,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <h1 className="login-title text-center text-5xl font-semibold tracking-[-0.05em] text-zinc-50 sm:text-6xl">
         Sign In
       </h1>
+      <p className="mt-4 text-center text-sm leading-6 text-zinc-400 sm:text-base">
+        Each trader uses a separate username and password. Logging out returns to
+        this screen so the other account can sign in independently.
+      </p>
 
       <FlashBanner code={flashCode} />
 

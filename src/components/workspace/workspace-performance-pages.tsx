@@ -426,12 +426,23 @@ export function AnalyticsPage() {
 }
 
 export function SettingsPage() {
-  const { activeUser, resetWorkspace, seed, setActiveUser } = useWorkspace();
+  const {
+    activeUser,
+    isSessionUserLocked,
+    resetWorkspace,
+    seed,
+    sessionUser,
+    setActiveUser,
+  } = useWorkspace();
 
   return (
     <div className="space-y-6">
       <PageIntro
-        description="Manage the two-user workspace profile, reminders, and local demo data state."
+        description={
+          isSessionUserLocked
+            ? "Each trader has a separate login. This page shows both profiles, but only the signed-in account stays active in this browser session."
+            : "Manage the two-user workspace profile, reminders, and local demo data state."
+        }
         eyebrow="Settings"
         title="Profiles, workspace preferences, and reminder habits."
       />
@@ -459,13 +470,22 @@ export function SettingsPage() {
                     <p className="mt-4 text-sm leading-6 text-zinc-400">{user.bio}</p>
                     <p className="mt-2 text-sm text-zinc-300">Focus: {user.focus}</p>
                   </div>
-                  <Button
-                    onClick={() => setActiveUser(user.id)}
-                    type="button"
-                    variant={activeUser.id === user.id ? "primary" : "secondary"}
-                  >
-                    {activeUser.id === user.id ? "Active" : "Set Active"}
-                  </Button>
+                  {isSessionUserLocked ? (
+                    <Button
+                      type="button"
+                      variant={sessionUser?.id === user.id ? "primary" : "secondary"}
+                    >
+                      {sessionUser?.id === user.id ? "Signed in" : "Separate login"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setActiveUser(user.id)}
+                      type="button"
+                      variant={activeUser.id === user.id ? "primary" : "secondary"}
+                    >
+                      {activeUser.id === user.id ? "Active" : "Set Active"}
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -492,8 +512,12 @@ export function SettingsPage() {
                 title: "Shared date context",
               },
               {
-                description: "Local state persists in browser storage so demo edits survive refreshes.",
-                title: "Persistent local demo data",
+                description: isSessionUserLocked
+                  ? "Local demo state is stored separately for each signed-in trader on this browser."
+                  : "Local state persists in browser storage so demo edits survive refreshes.",
+                title: isSessionUserLocked
+                  ? "Per-user local demo data"
+                  : "Persistent local demo data",
               },
             ]}
           />

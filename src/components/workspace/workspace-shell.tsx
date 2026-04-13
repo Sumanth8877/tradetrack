@@ -10,6 +10,7 @@ import {
   FileText,
   FolderKanban,
   LayoutDashboard,
+  LogOut,
   NotebookPen,
   Plus,
   Search,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 
+import { signOutAction } from "@/app/actions";
 import { useWorkspace } from "@/components/workspace/workspace-provider";
 import { QuickAddDrawer } from "@/components/workspace/workspace-quick-add";
 import { Button, Input, Panel, Pill, UserTag } from "@/components/workspace/workspace-ui";
@@ -40,7 +42,10 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const {
     activeUser,
     currentDate,
+    isSessionUserLocked,
     seed,
+    session,
+    sessionUser,
     setActiveUser,
     setCurrentDate,
     summary,
@@ -57,6 +62,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const dueReminders = seed.reminders.filter(
     (reminder) => reminder.date === currentDate && reminder.status === "due",
   );
+  const headerUser = sessionUser ?? activeUser;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.12),transparent_24%),radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_18%),linear-gradient(180deg,#050814_0%,#080d19_52%,#05070e_100%)] text-zinc-50">
@@ -103,17 +109,22 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
             <div className="space-y-4">
               <div className="rounded-[24px] border border-cyan-300/12 bg-cyan-300/8 p-4">
                 <p className="text-xs uppercase tracking-[0.24em] text-cyan-100/70">
-                  Focus User
+                  {isSessionUserLocked ? "Signed In User" : "Focus User"}
                 </p>
                 <div className="mt-3">
                   <UserTag
-                    accent={activeUser.accent}
-                    avatar={activeUser.avatar}
-                    name={activeUser.name}
+                    accent={headerUser.accent}
+                    avatar={headerUser.avatar}
+                    name={headerUser.name}
                   />
                 </div>
+                {isSessionUserLocked && session ? (
+                  <p className="mt-3 text-xs uppercase tracking-[0.18em] text-zinc-500">
+                    @{session.username}
+                  </p>
+                ) : null}
                 <p className="mt-3 text-sm leading-6 text-zinc-300">
-                  {activeUser.bio}
+                  {headerUser.bio}
                 </p>
               </div>
               <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
@@ -169,23 +180,30 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {seed.users.map((user) => (
-                      <button
-                        key={user.id}
-                        className={cn(
-                          "rounded-full border px-3 py-2 text-sm transition",
-                          activeUser.id === user.id
-                            ? "border-cyan-300/30 bg-cyan-300/12 text-cyan-100"
-                            : "border-white/10 bg-white/6 text-zinc-400 hover:text-zinc-100",
-                        )}
-                        onClick={() => setActiveUser(user.id)}
-                        type="button"
-                      >
-                        {user.name}
-                      </button>
-                    ))}
-                  </div>
+                  {isSessionUserLocked && session ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Pill tone="cyan">Signed in as {headerUser.name}</Pill>
+                      <Pill tone="zinc">@{session.username}</Pill>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {seed.users.map((user) => (
+                        <button
+                          key={user.id}
+                          className={cn(
+                            "rounded-full border px-3 py-2 text-sm transition",
+                            activeUser.id === user.id
+                              ? "border-cyan-300/30 bg-cyan-300/12 text-cyan-100"
+                              : "border-white/10 bg-white/6 text-zinc-400 hover:text-zinc-100",
+                          )}
+                          onClick={() => setActiveUser(user.id)}
+                          type="button"
+                        >
+                          {user.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <Input
                     className="min-w-[170px]"
                     onChange={(event) => setCurrentDate(event.target.value)}
@@ -196,6 +214,14 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                     <Plus className="mr-2 size-4" />
                     Quick add
                   </Button>
+                  {isSessionUserLocked ? (
+                    <form action={signOutAction}>
+                      <Button type="submit" variant="secondary">
+                        <LogOut className="mr-2 size-4" />
+                        Logout
+                      </Button>
+                    </form>
+                  ) : null}
                 </div>
               </div>
 
@@ -204,6 +230,9 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                   <Bell className="size-4 text-amber-200" />
                   {dueReminders.length} reminders due
                 </div>
+                {isSessionUserLocked ? (
+                  <Pill tone="sky">The other trader must use a separate login.</Pill>
+                ) : null}
                 {dueReminders.slice(0, 2).map((reminder) => (
                   <Pill key={reminder.id} tone="amber">
                     {reminder.time} {reminder.message}
