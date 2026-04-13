@@ -14,8 +14,8 @@ const cascadiaMono = localFont({
 
 export const metadata: Metadata = {
   description:
-    "TradeTrack is a focused trade journal with checklist tracking, attendance, mistakes, and short AI insights.",
-  title: "TradeTrack",
+    "TradeTrack is a shared daily trading journal, planner, learning tracker, trade log, calendar, and analytics workspace for two traders.",
+  title: "TradeTrack Workspace",
 };
 
 export default function RootLayout({
