@@ -3,16 +3,12 @@ import {
   CandlestickChart,
 } from "lucide-react";
 
-import { signInAction } from "@/app/actions";
 import { FlashBanner } from "@/components/flash-banner";
-import { LoginSubmitButton } from "@/components/login-submit-button";
+import { LoginForm } from "@/components/login-form";
 import { LoginStage } from "@/components/login-stage";
-import { PasswordResetDialog } from "@/components/password-reset-dialog";
 import { SectionCard } from "@/components/section-card";
 import { hasSupabaseEnv } from "@/lib/env";
 import {
-  inputClass,
-  labelClass,
   subtleBadgeClass,
 } from "@/lib/styles";
 import { createClient } from "@/lib/supabase/server";
@@ -98,49 +94,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       <FlashBanner code={flashCode} />
 
-      <form
-        action={signInAction}
-        autoComplete="off"
-        className="mt-8 space-y-5"
-        id="sign-in-form"
-      >
-        <div className="group relative">
-          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent opacity-0 transition duration-300 group-focus-within:opacity-100" />
-          <label className={labelClass} htmlFor="login-username">
-            Username
-          </label>
-          <input
-            autoComplete="off"
-            className={`${inputClass} login-input h-14 border-white/12 bg-black/40 text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]`}
-            id="login-username"
-            name="username"
-            placeholder="Enter username"
-            required
-            type="text"
-          />
-        </div>
-        <div className="group relative">
-          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent opacity-0 transition duration-300 group-focus-within:opacity-100" />
-          <label className={labelClass} htmlFor="login-password">
-            Password
-          </label>
-          <input
-            autoComplete="off"
-            className={`${inputClass} login-input h-14 border-white/12 bg-black/40 text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]`}
-            id="login-password"
-            minLength={8}
-            name="password"
-            placeholder="Enter password"
-            required
-            type="password"
-          />
-        </div>
-      </form>
-
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <LoginSubmitButton formId="sign-in-form" />
-        <PasswordResetDialog />
-      </div>
+      <LoginForm />
     </LoginStage>
   );
 }
