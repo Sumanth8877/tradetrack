@@ -55,9 +55,18 @@ async function requireSupabaseUser() {
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+
+  try {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+
+    user = authUser;
+  } catch (error) {
+    console.error("Supabase session lookup failed", error);
+    redirect("/login?flash=auth_required");
+  }
 
   if (!user) {
     redirect("/login?flash=auth_required");

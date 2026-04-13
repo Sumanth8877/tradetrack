@@ -66,10 +66,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     return <SetupState flashCode={flashCode} />;
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+
+    user = authUser;
+  } catch (error) {
+    console.error("Login page session lookup failed", error);
+  }
 
   if (user) {
     redirect("/");

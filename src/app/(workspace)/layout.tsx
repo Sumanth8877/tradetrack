@@ -14,23 +14,28 @@ export default async function WorkspaceLayout({
   let session = null;
 
   if (hasSupabaseEnv()) {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user) {
+      if (!user) {
+        redirect("/login?flash=auth_required");
+      }
+
+      const authUser = getAuthUserBySupabaseUser(user);
+
+      if (authUser) {
+        session = {
+          displayName: authUser.displayName,
+          username: authUser.username,
+          workspaceUserId: authUser.workspaceUserId,
+        };
+      }
+    } catch (error) {
+      console.error("Workspace session lookup failed", error);
       redirect("/login?flash=auth_required");
-    }
-
-    const authUser = getAuthUserBySupabaseUser(user);
-
-    if (authUser) {
-      session = {
-        displayName: authUser.displayName,
-        username: authUser.username,
-        workspaceUserId: authUser.workspaceUserId,
-      };
     }
   }
 
