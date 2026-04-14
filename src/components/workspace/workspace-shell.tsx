@@ -37,6 +37,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const {
     activeUser,
     isSessionUserLocked,
+    session,
     seed,
     sessionUser,
     summary,
