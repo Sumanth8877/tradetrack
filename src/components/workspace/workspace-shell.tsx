@@ -10,15 +10,12 @@ import {
   FolderKanban,
   LayoutDashboard,
   NotebookPen,
-  Search,
   Settings,
   TrendingUp,
 } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
 
 import { useWorkspace } from "@/components/workspace/workspace-provider";
-import { Input, Panel, Pill, UserTag } from "@/components/workspace/workspace-ui";
-import { searchWorkspace } from "@/lib/workspace-data";
+import { Panel, Pill } from "@/components/workspace/workspace-ui";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -34,23 +31,8 @@ const navItems = [
 ];
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
-  const {
-    activeUser,
-    isSessionUserLocked,
-    session,
-    seed,
-    sessionUser,
-    summary,
-  } = useWorkspace();
+  const { seed, summary } = useWorkspace();
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState("");
-  const deferredQuery = useDeferredValue(searchQuery);
-
-  const searchResults = useMemo(
-    () => searchWorkspace(seed, deferredQuery),
-    [deferredQuery, seed],
-  );
-  const headerUser = sessionUser ?? activeUser;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.12),transparent_24%),radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_18%),linear-gradient(180deg,#050814_0%,#080d19_52%,#05070e_100%)] text-zinc-50">
@@ -72,17 +54,19 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 
               <nav className="mt-6 space-y-2">
                 {navItems.map((item) => {
-                  const active = pathname === item.href;
+                  const active =
+                    pathname === item.href ||
+                    (item.href !== "/" && pathname.startsWith(`${item.href}/`));
                   const Icon = item.icon;
 
                   return (
                     <Link
                       key={item.href}
                       className={cn(
-                        "flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium leading-none transition",
+                        "flex min-h-14 items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium leading-none transition-colors",
                         active
-                          ? "bg-white text-slate-950 shadow-[0_18px_50px_-28px_rgba(255,255,255,0.85)]"
-                          : "text-zinc-400 hover:bg-white/8 hover:text-zinc-100",
+                          ? "border-cyan-300/30 bg-cyan-300/14 text-cyan-50 shadow-[0_18px_50px_-32px_rgba(34,211,238,0.45)]"
+                          : "border-transparent text-zinc-300 hover:border-white/8 hover:bg-white/6 hover:text-zinc-50",
                       )}
                       href={item.href}
                       prefetch
@@ -96,26 +80,6 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-[24px] border border-cyan-300/12 bg-cyan-300/8 p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-cyan-100/70">
-                  {isSessionUserLocked ? "Signed In User" : "Focus User"}
-                </p>
-                <div className="mt-3">
-                  <UserTag
-                    accent={headerUser.accent}
-                    avatar={headerUser.avatar}
-                    name={headerUser.name}
-                  />
-                </div>
-                {isSessionUserLocked && session ? (
-                  <p className="mt-3 text-xs uppercase tracking-[0.18em] text-zinc-500">
-                    @{session.username}
-                  </p>
-                ) : null}
-                <p className="mt-3 text-sm leading-6 text-zinc-300">
-                  {headerUser.bio}
-                </p>
-              </div>
               <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
                   Daily Snapshot
@@ -133,41 +97,6 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-6">
-            <div className="relative max-w-3xl">
-              <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-              <Input
-                className="h-14 pl-11"
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search tasks, notes, journals, trades, and resources"
-                value={searchQuery}
-              />
-              {searchQuery && searchResults.length > 0 ? (
-                <div className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-20 rounded-[24px] border border-white/10 bg-[#0b1020]/95 p-3 shadow-[0_20px_60px_-32px_rgba(0,0,0,0.95)] backdrop-blur">
-                  {searchResults.map((result) => (
-                    <Link
-                      key={result.id}
-                      className="flex items-center justify-between rounded-2xl px-3 py-3 transition hover:bg-white/7"
-                      href={result.route}
-                      onClick={() => setSearchQuery("")}
-                      prefetch
-                    >
-                      <div>
-                        <p className="text-sm font-medium text-zinc-100">
-                          {result.title}
-                        </p>
-                        <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">
-                          {result.subtitle}
-                        </p>
-                      </div>
-                      <Pill tone="zinc">{result.type}</Pill>
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          </div>
-
           <main>{children}</main>
         </div>
       </div>
