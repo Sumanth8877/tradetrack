@@ -45,7 +45,9 @@ export async function updateSession(request: NextRequest) {
   });
 
   try {
-    await supabase.auth.getClaims();
+    // Supabase SSR expects the middleware/proxy refresh path to initialize
+    // the session with getUser() so refreshed cookies are written back safely.
+    await supabase.auth.getUser();
   } catch (error) {
     console.error("Supabase session refresh failed in proxy", error);
   }
