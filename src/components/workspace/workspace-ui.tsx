@@ -12,7 +12,7 @@ const toneStyles = {
   rose: "border-rose-300/20 bg-rose-300/10 text-rose-100",
   sky: "border-sky-300/20 bg-sky-300/10 text-sky-100",
   violet: "border-violet-300/20 bg-violet-300/10 text-violet-100",
-  zinc: "border-white/10 bg-white/8 text-zinc-200",
+  zinc: "border-white/12 bg-white/10 text-zinc-100",
 } as const;
 
 function getToneStyle(tone: keyof typeof toneStyles | string) {
@@ -85,7 +85,7 @@ export function MetricCard({
       <div className="flex h-full w-full items-start justify-between gap-4">
         <div className="flex min-w-0 flex-1 flex-col justify-between">
           <div>
-            <p className="text-xs uppercase leading-none tracking-[0.24em] text-zinc-500">
+            <p className="text-xs uppercase leading-none tracking-[0.24em] text-zinc-400">
               {label}
             </p>
             <p className="mt-5 text-3xl font-semibold leading-none tracking-[-0.04em] text-zinc-50">
@@ -226,7 +226,7 @@ export function ComparisonBars({
         <div key={String(item.label)} className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-zinc-300">{String(item.label)}</span>
-            <span className="text-zinc-500">{Number(item[valueKey]).toFixed(0)}</span>
+            <span className="text-zinc-400">{Number(item[valueKey]).toFixed(0)}</span>
           </div>
           <div className="h-2 rounded-full bg-white/6">
             <div
@@ -280,7 +280,7 @@ export function LineChart({
           strokeWidth="2.5"
         />
       </svg>
-      <div className="grid grid-cols-7 gap-2 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+      <div className="grid grid-cols-7 gap-2 text-[11px] uppercase tracking-[0.18em] text-zinc-400">
         {points.map((point) => (
           <span key={point.label}>{point.label}</span>
         ))}
@@ -307,7 +307,7 @@ export function Heatmap({
                   ? "border-cyan-300/25 bg-cyan-300/14 text-cyan-50"
                   : cell.score >= 40
                     ? "border-amber-300/25 bg-amber-300/12 text-amber-50"
-                    : "border-white/10 bg-white/6 text-zinc-500",
+                    : "border-white/10 bg-white/6 text-zinc-300",
             )}
             title={`${cell.weekday} ${cell.date}: ${cell.score}`}
           >
@@ -410,11 +410,11 @@ export function Field({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+      <span className="text-xs uppercase tracking-[0.24em] text-zinc-400">
         {label}
       </span>
       {children}
-      {hint ? <span className="block text-xs text-zinc-500">{hint}</span> : null}
+      {hint ? <span className="block text-xs text-zinc-400">{hint}</span> : null}
     </label>
   );
 }
@@ -426,7 +426,7 @@ export function Input({
   return (
     <input
       className={cn(
-        "min-h-14 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/15",
+        "min-h-14 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-400 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/15",
         className,
       )}
       {...props}
@@ -456,7 +456,7 @@ export function Textarea({
   return (
     <textarea
       className={cn(
-        "min-h-28 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/15",
+        "min-h-28 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-400 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/15",
         className,
       )}
       {...props}
@@ -497,7 +497,7 @@ export function EmptyState({
   return (
     <div className="rounded-[24px] border border-dashed border-white/10 bg-white/4 px-6 py-8 text-center">
       <p className="text-base font-medium text-zinc-100">{title}</p>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">
         {description}
       </p>
     </div>
@@ -524,12 +524,12 @@ export function StackList({
           <div className="space-y-1">
             <p className="text-sm font-medium text-zinc-100">{item.title}</p>
             {item.description ? (
-              <p className="max-w-2xl text-sm leading-6 text-zinc-400">
+              <p className="max-w-2xl text-sm leading-6 text-zinc-300">
                 {item.description}
               </p>
             ) : null}
           </div>
-          <div className="flex items-center gap-3 text-xs text-zinc-500">
+          <div className="flex items-center gap-3 text-xs text-zinc-400">
             {item.meta ? <span>{item.meta}</span> : null}
             {item.tag}
           </div>
@@ -548,7 +548,7 @@ export function StatDelta({
 }) {
   return (
     <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-zinc-500">
+      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-zinc-400">
         <Flame className="size-3.5" />
         {label}
       </div>
@@ -589,7 +589,7 @@ export function KeyValueGrid({
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((item) => (
         <div key={item.label} className="rounded-2xl border border-white/8 bg-white/4 p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">
             {item.label}
           </p>
           <div className="mt-3 text-base font-medium text-zinc-100">{item.value}</div>
@@ -616,7 +616,7 @@ export function DataTable({
         {columns.map((column) => (
           <div
             key={column}
-            className="border-b border-white/8 px-4 py-3 text-xs uppercase tracking-[0.24em] text-zinc-500 sm:border-b-0"
+            className="border-b border-white/8 px-4 py-3 text-xs uppercase tracking-[0.24em] text-zinc-400 sm:border-b-0"
           >
             {column}
           </div>
@@ -631,7 +631,7 @@ export function DataTable({
           >
             {row.map((cell, cellIndex) => (
               <Fragment key={cellIndex}>
-                <div className="px-4 py-3 text-sm text-zinc-200">{cell}</div>
+                <div className="px-4 py-3 text-sm text-zinc-100">{cell}</div>
               </Fragment>
             ))}
           </div>

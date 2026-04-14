@@ -97,6 +97,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                           : "text-zinc-400 hover:bg-white/8 hover:text-zinc-100",
                       )}
                       href={item.href}
+                      prefetch
                     >
                       <Icon className="size-4" />
                       {item.label}
@@ -163,6 +164,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                           className="flex items-center justify-between rounded-2xl px-3 py-3 transition hover:bg-white/7"
                           href={result.route}
                           onClick={() => setSearchQuery("")}
+                          prefetch
                         >
                           <div>
                             <p className="text-sm font-medium text-zinc-100">

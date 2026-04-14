@@ -1,4 +1,4 @@
-import { SettingsPage } from "@/components/workspace/workspace-performance-pages";
+import { SettingsPage } from "@/components/workspace/workspace-settings-page";
 
 export default function SettingsRoute() {
   return <SettingsPage />;
