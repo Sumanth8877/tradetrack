@@ -63,12 +63,6 @@ export function DashboardPage() {
             <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(125,211,252,0.8)]" />
             Dashboard
           </div>
-          <UserTag
-            accent={activeUser.accent}
-            avatar={activeUser.avatar}
-            className="whitespace-nowrap"
-            name={activeUser.name}
-          />
         </div>
         <div className="space-y-2">
           <h1 className="max-w-4xl text-balance text-3xl font-semibold leading-[0.98] tracking-[-0.045em] text-zinc-50 sm:text-4xl">

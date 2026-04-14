@@ -14,7 +14,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { Panel } from "@/components/workspace/workspace-ui";
+import { useWorkspace } from "@/components/workspace/workspace-provider";
+import { Panel, UserTag } from "@/components/workspace/workspace-ui";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -30,6 +31,7 @@ const navItems = [
 ];
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
+  const { activeUser } = useWorkspace();
   const pathname = usePathname();
 
   return (
@@ -69,6 +71,14 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <div className="min-w-0 flex-1">
+          <div className="mb-6 flex justify-end">
+            <UserTag
+              accent={activeUser.accent}
+              avatar={activeUser.avatar}
+              className="whitespace-nowrap"
+              name={activeUser.name}
+            />
+          </div>
           <main>{children}</main>
         </div>
       </div>
