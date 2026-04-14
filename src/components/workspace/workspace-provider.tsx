@@ -92,6 +92,10 @@ function coerceSeedForSession(
       ? seed
       : workspaceSeed;
 
+    if (baseSeed.activeUserId === session.workspaceUserId) {
+      return baseSeed;
+    }
+
     return {
       ...baseSeed,
       activeUserId: session.workspaceUserId,
@@ -100,9 +104,13 @@ function coerceSeedForSession(
 
   const hasValidActiveUser = seed.users.some((user) => user.id === seed.activeUserId);
 
+  if (hasValidActiveUser) {
+    return seed;
+  }
+
   return {
     ...seed,
-    activeUserId: hasValidActiveUser ? seed.activeUserId : workspaceSeed.activeUserId,
+    activeUserId: workspaceSeed.activeUserId,
   };
 }
 
@@ -287,10 +295,14 @@ export function WorkspaceProvider({
   session?: WorkspaceSession | null;
 }) {
   const storageKey = getStorageKey(session);
+  const fallbackSeed = useMemo(
+    () => coerceSeedForSession(workspaceSeed, session),
+    [session],
+  );
   const seed = useSyncExternalStore(
     (listener) => subscribe(storageKey, listener),
     () => getSnapshot(storageKey, session),
-    () => coerceSeedForSession(workspaceSeed, session),
+    () => fallbackSeed,
   );
   const activeUser = useMemo(() => getUser(seed, seed.activeUserId), [seed]);
   const sessionUser = useMemo(
