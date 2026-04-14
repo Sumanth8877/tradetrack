@@ -198,13 +198,50 @@ function safeParseSeed(raw: string | null) {
   }
 }
 
+function summarizeStorageError(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      name: error.name,
+    };
+  }
+
+  return {
+    message: String(error),
+    name: "UnknownError",
+  };
+}
+
+function readStoredSeed(storageKey: string) {
+  try {
+    return safeParseSeed(window.localStorage.getItem(storageKey));
+  } catch (error) {
+    console.error("Workspace storage read failed", {
+      error: summarizeStorageError(error),
+      storageKey,
+    });
+    return workspaceSeed;
+  }
+}
+
+function writeStoredSeed(storageKey: string, seed: WorkspaceSeed) {
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(seed));
+  } catch (error) {
+    console.error("Workspace storage write failed", {
+      error: summarizeStorageError(error),
+      storageKey,
+    });
+  }
+}
+
 function getSnapshot(storageKey: string, session: WorkspaceSession | null) {
   if (typeof window === "undefined") {
     return coerceSeedForSession(workspaceSeed, session);
   }
 
   if (!initializedKeys.has(storageKey)) {
-    const storedSeed = safeParseSeed(window.localStorage.getItem(storageKey));
+    const storedSeed = readStoredSeed(storageKey);
     storeSnapshots.set(storageKey, coerceSeedForSession(storedSeed, session));
     initializedKeys.add(storageKey);
   }
@@ -236,7 +273,7 @@ function commitSeed(
   storeSnapshots.set(storageKey, next);
 
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(storageKey, JSON.stringify(next));
+    writeStoredSeed(storageKey, next);
   }
 
   getStoreListeners(storageKey).forEach((listener) => listener());
