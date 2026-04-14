@@ -2,45 +2,23 @@ import { redirect } from "next/navigation";
 
 import { WorkspaceProvider } from "@/components/workspace/workspace-provider";
 import { WorkspaceShell } from "@/components/workspace/workspace-shell";
-import { getAuthUserBySupabaseUser } from "@/lib/auth-users";
-import { hasSupabaseEnv } from "@/lib/env";
-import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceAuthState } from "@/lib/workspace-session";
 
 export default async function WorkspaceLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let session = null;
+  const authState = await getWorkspaceAuthState();
 
-  if (hasSupabaseEnv()) {
-    try {
-      const supabase = await createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        redirect("/login?flash=auth_required");
-      }
-
-      const authUser = getAuthUserBySupabaseUser(user);
-
-      if (authUser) {
-        session = {
-          displayName: authUser.displayName,
-          username: authUser.username,
-          workspaceUserId: authUser.workspaceUserId,
-        };
-      }
-    } catch (error) {
-      console.error("Workspace session lookup failed", error);
-      redirect("/login?flash=auth_required");
-    }
+  if (authState.status === "signed_out") {
+    redirect("/login?flash=auth_required");
   }
 
   return (
-    <WorkspaceProvider session={session}>
+    <WorkspaceProvider
+      session={authState.status === "authenticated" ? authState.session : null}
+    >
       <WorkspaceShell>{children}</WorkspaceShell>
     </WorkspaceProvider>
   );

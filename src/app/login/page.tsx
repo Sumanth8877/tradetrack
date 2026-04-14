@@ -9,13 +9,12 @@ import { LoginSubmitButton } from "@/components/login-submit-button";
 import { LoginStage } from "@/components/login-stage";
 import { PasswordResetDialog } from "@/components/password-reset-dialog";
 import { SectionCard } from "@/components/section-card";
-import { hasSupabaseEnv } from "@/lib/env";
 import {
   inputClass,
   labelClass,
   subtleBadgeClass,
 } from "@/lib/styles";
-import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceAuthState } from "@/lib/workspace-session";
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -61,25 +60,13 @@ function SetupState({ flashCode }: { flashCode?: string }) {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const flashCode = params.flash === "signed_out" ? undefined : params.flash;
+  const authState = await getWorkspaceAuthState();
 
-  if (!hasSupabaseEnv()) {
+  if (authState.status === "unconfigured") {
     return <SetupState flashCode={flashCode} />;
   }
 
-  let user = null;
-
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
-
-    user = authUser;
-  } catch (error) {
-    console.error("Login page session lookup failed", error);
-  }
-
-  if (user) {
+  if (authState.status === "authenticated") {
     redirect("/");
   }
 

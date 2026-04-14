@@ -25,12 +25,7 @@ import {
   type WorkspaceUser,
   workspaceSeed,
 } from "@/lib/workspace-data";
-
-export type WorkspaceSession = {
-  displayName: string;
-  username: string;
-  workspaceUserId: string;
-};
+import type { WorkspaceSession } from "@/lib/workspace-session";
 
 type WorkspaceContextValue = {
   activeUser: WorkspaceUser;
@@ -93,8 +88,12 @@ function coerceSeedForSession(
   session: WorkspaceSession | null,
 ): WorkspaceSeed {
   if (session) {
+    const baseSeed = seed.users.some((user) => user.id === session.workspaceUserId)
+      ? seed
+      : workspaceSeed;
+
     return {
-      ...seed,
+      ...baseSeed,
       activeUserId: session.workspaceUserId,
     };
   }
@@ -161,13 +160,39 @@ function createLinkedAttachments(
   }));
 }
 
+function isWorkspaceSeed(value: unknown): value is WorkspaceSeed {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const seed = value as Partial<WorkspaceSeed>;
+
+  return (
+    typeof seed.activeUserId === "string" &&
+    Array.isArray(seed.attachments) &&
+    Array.isArray(seed.attendance) &&
+    Array.isArray(seed.calendarEvents) &&
+    typeof seed.currentDate === "string" &&
+    Array.isArray(seed.journalEntries) &&
+    Array.isArray(seed.notes) &&
+    Array.isArray(seed.reminders) &&
+    Array.isArray(seed.resources) &&
+    Array.isArray(seed.tasks) &&
+    Array.isArray(seed.trades) &&
+    Array.isArray(seed.users) &&
+    seed.users.length > 0 &&
+    typeof seed.workspaceName === "string"
+  );
+}
+
 function safeParseSeed(raw: string | null) {
   if (!raw) {
     return workspaceSeed;
   }
 
   try {
-    return JSON.parse(raw) as WorkspaceSeed;
+    const parsed = JSON.parse(raw);
+    return isWorkspaceSeed(parsed) ? parsed : workspaceSeed;
   } catch {
     return workspaceSeed;
   }
