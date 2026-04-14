@@ -40,6 +40,7 @@ import {
   getTaskBreakdown,
   getWeekSeries,
 } from "@/lib/workspace-data";
+import type { WorkspaceAnalyticsInsightPayload } from "@/lib/workspace-analytics-ai";
 
 export function TradesPage() {
   const { seed } = useWorkspace();
@@ -251,6 +252,12 @@ export function TradesPage() {
 
 export function AnalyticsPage() {
   const { activeUser, seed, summary } = useWorkspace();
+  const [aiInsight, setAiInsight] = useState<{
+    body: string;
+    model: string;
+  } | null>(null);
+  const [aiError, setAiError] = useState("");
+  const [isGeneratingInsight, setIsGeneratingInsight] = useState(false);
   const weekSeries = getWeekSeries(seed);
   const heatmap = getMonthlyHeatmap(seed, activeUser.id);
   const setupUsage = getSetupUsage(seed);
@@ -263,6 +270,100 @@ export function AnalyticsPage() {
   const bestDays = getBestPerformingDays(seed);
   const missedCategories = getMostMissedCategories(seed);
   const streak = getAttendanceStreak(seed, activeUser.id);
+  const analyticsPayload = useMemo<WorkspaceAnalyticsInsightPayload>(
+    () => ({
+      bestDays: bestDays.slice(0, 4).map((day) => ({
+        date: day.date,
+        label: day.label,
+        pnl: day.pnl,
+      })),
+      metrics: {
+        bestSetup: setupUsage[0]?.label ?? "n/a",
+        completionRate: summary.completionRate,
+        consistencyAverage: summary.consistencyAverage,
+        streak,
+        winLossLabel: summary.winLossLabel,
+      },
+      missedCategories: missedCategories.slice(0, 5).map((item) => ({
+        count: item.count,
+        label: item.label,
+      })),
+      mistakeFrequency: mistakeFrequency.slice(0, 5).map((item) => ({
+        count: item.count,
+        label: item.label,
+      })),
+      moodTrend: moodTrend.slice(-7),
+      productiveTimes: productiveTimes.slice(0, 5).map((item) => ({
+        count: item.count,
+        label: item.label,
+      })),
+      setupUsage: setupUsage.slice(0, 5).map((setup) => ({
+        count: setup.count,
+        label: setup.label,
+        pnl: setup.pnl,
+        winRate: setup.winRate,
+      })),
+      taskBreakdown: taskBreakdown.slice(0, 6).map((item) => ({
+        label: item.label,
+        value: item.completion,
+      })),
+      user: {
+        focus: activeUser.focus,
+        name: activeUser.name,
+        workspaceDate: seed.currentDate,
+      },
+    }),
+    [
+      activeUser.focus,
+      activeUser.name,
+      bestDays,
+      missedCategories,
+      mistakeFrequency,
+      moodTrend,
+      productiveTimes,
+      seed.currentDate,
+      setupUsage,
+      streak,
+      summary.completionRate,
+      summary.consistencyAverage,
+      summary.winLossLabel,
+      taskBreakdown,
+    ],
+  );
+
+  async function handleGenerateInsight() {
+    setIsGeneratingInsight(true);
+    setAiError("");
+
+    try {
+      const response = await fetch("/api/workspace/analytics/insight", {
+        body: JSON.stringify({ payload: analyticsPayload }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+
+      const result = (await response.json()) as
+        | { body: string; model: string }
+        | { error?: string };
+
+      if (!response.ok || !("body" in result)) {
+        const errorMessage = "error" in result ? result.error : undefined;
+        throw new Error(errorMessage ?? "DeepSeek analytics request failed.");
+      }
+
+      setAiInsight(result);
+    } catch (error) {
+      setAiError(
+        error instanceof Error
+          ? error.message
+          : "DeepSeek analytics request failed.",
+      );
+    } finally {
+      setIsGeneratingInsight(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -301,6 +402,49 @@ export function AnalyticsPage() {
           value={setupUsage[0]?.label ?? "n/a"}
         />
       </div>
+
+      <Panel className="space-y-4">
+        <SectionTitle
+          action={
+            <Button
+              disabled={isGeneratingInsight}
+              onClick={handleGenerateInsight}
+              type="button"
+              variant="secondary"
+            >
+              {isGeneratingInsight ? "Analyzing..." : "Generate DeepSeek analysis"}
+            </Button>
+          }
+          description="Server-side DeepSeek readout based on the current workspace analytics snapshot."
+          title="AI Analyst"
+        />
+        <div className="flex flex-wrap gap-2">
+          <Pill tone="cyan">DeepSeek</Pill>
+          <Pill tone="zinc">{aiInsight?.model ?? "deepseek-chat"}</Pill>
+          <Pill tone="amber">Server-side</Pill>
+        </div>
+        <div className="rounded-[24px] border border-white/8 bg-black/18 p-5">
+          {aiInsight ? (
+            <div className="space-y-2">
+              {aiInsight.body.split("\n").map((line) => (
+                <p
+                  key={line}
+                  className="text-sm leading-7 text-zinc-200"
+                >
+                  {line}
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm leading-7 text-zinc-400">
+              Generate an AI review to summarize strengths, risks, recurring patterns, and the next adjustment from this analytics snapshot.
+            </p>
+          )}
+        </div>
+        {aiError ? (
+          <p className="text-sm text-rose-300">{aiError}</p>
+        ) : null}
+      </Panel>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Panel className="space-y-4">

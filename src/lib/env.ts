@@ -15,6 +15,12 @@ const openAiEnvSchema = z.object({
   model: z.string().min(1).default("gpt-5-nano"),
 });
 
+const deepSeekEnvSchema = z.object({
+  baseUrl: z.string().url("DEEPSEEK_BASE_URL must be a valid URL."),
+  key: z.string().min(1, "Missing DEEPSEEK_API_KEY."),
+  model: z.string().min(1).default("deepseek-chat"),
+});
+
 export function hasSupabaseEnv() {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -50,5 +56,17 @@ export function getOpenAiEnv() {
   return openAiEnvSchema.parse({
     key: process.env.OPENAI_API_KEY,
     model: process.env.OPENAI_MODEL ?? "gpt-5-nano",
+  });
+}
+
+export function hasDeepSeekEnv() {
+  return Boolean(process.env.DEEPSEEK_API_KEY);
+}
+
+export function getDeepSeekEnv() {
+  return deepSeekEnvSchema.parse({
+    baseUrl: process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com",
+    key: process.env.DEEPSEEK_API_KEY,
+    model: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",
   });
 }
