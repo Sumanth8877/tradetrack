@@ -3,26 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Bell,
   BookOpen,
   CalendarDays,
   ChartCandlestick,
   FileText,
   FolderKanban,
   LayoutDashboard,
-  LogOut,
   NotebookPen,
-  Plus,
   Search,
   Settings,
   TrendingUp,
 } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 
-import { signOutAction } from "@/app/actions";
 import { useWorkspace } from "@/components/workspace/workspace-provider";
-import { QuickAddDrawer } from "@/components/workspace/workspace-quick-add";
-import { Button, Input, Panel, Pill, UserTag } from "@/components/workspace/workspace-ui";
+import { Input, Panel, Pill, UserTag } from "@/components/workspace/workspace-ui";
 import { searchWorkspace } from "@/lib/workspace-data";
 import { cn } from "@/lib/utils";
 
@@ -41,26 +36,18 @@ const navItems = [
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const {
     activeUser,
-    currentDate,
     isSessionUserLocked,
     seed,
-    session,
     sessionUser,
-    setActiveUser,
-    setCurrentDate,
     summary,
   } = useWorkspace();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
-  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const deferredQuery = useDeferredValue(searchQuery);
 
   const searchResults = useMemo(
     () => searchWorkspace(seed, deferredQuery),
     [deferredQuery, seed],
-  );
-  const dueReminders = seed.reminders.filter(
-    (reminder) => reminder.date === currentDate && reminder.status === "due",
   );
   const headerUser = sessionUser ?? activeUser;
 
@@ -145,116 +132,44 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <div className="min-w-0 flex-1">
-          <header className="sticky top-4 z-30 mb-6">
-            <Panel className="p-4 sm:p-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
-                  <Input
-                    className="h-14 pl-11"
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="Search tasks, notes, journals, trades, and resources"
-                    value={searchQuery}
-                  />
-                  {searchQuery && searchResults.length > 0 ? (
-                    <div className="absolute left-0 right-0 top-[calc(100%+0.75rem)] rounded-[24px] border border-white/10 bg-[#0b1020]/95 p-3 shadow-[0_20px_60px_-32px_rgba(0,0,0,0.95)] backdrop-blur">
-                      {searchResults.map((result) => (
-                        <Link
-                          key={result.id}
-                          className="flex items-center justify-between rounded-2xl px-3 py-3 transition hover:bg-white/7"
-                          href={result.route}
-                          onClick={() => setSearchQuery("")}
-                          prefetch
-                        >
-                          <div>
-                            <p className="text-sm font-medium text-zinc-100">
-                              {result.title}
-                            </p>
-                            <p className="text-xs uppercase tracking-[0.22em] text-zinc-500">
-                              {result.subtitle}
-                            </p>
-                          </div>
-                          <Pill tone="zinc">{result.type}</Pill>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : null}
+          <div className="mb-6">
+            <div className="relative max-w-3xl">
+              <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
+              <Input
+                className="h-14 pl-11"
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search tasks, notes, journals, trades, and resources"
+                value={searchQuery}
+              />
+              {searchQuery && searchResults.length > 0 ? (
+                <div className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-20 rounded-[24px] border border-white/10 bg-[#0b1020]/95 p-3 shadow-[0_20px_60px_-32px_rgba(0,0,0,0.95)] backdrop-blur">
+                  {searchResults.map((result) => (
+                    <Link
+                      key={result.id}
+                      className="flex items-center justify-between rounded-2xl px-3 py-3 transition hover:bg-white/7"
+                      href={result.route}
+                      onClick={() => setSearchQuery("")}
+                      prefetch
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-zinc-100">
+                          {result.title}
+                        </p>
+                        <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">
+                          {result.subtitle}
+                        </p>
+                      </div>
+                      <Pill tone="zinc">{result.type}</Pill>
+                    </Link>
+                  ))}
                 </div>
-
-                <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-start lg:justify-end">
-                  {isSessionUserLocked && session ? (
-                    <div className="flex flex-col items-start gap-2 self-stretch">
-                      <Pill className="whitespace-nowrap" tone="cyan">
-                        Signed in as {headerUser.name}
-                      </Pill>
-                      <Pill className="whitespace-nowrap" tone="zinc">
-                        @{session.username}
-                      </Pill>
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap items-center gap-2">
-                      {seed.users.map((user) => (
-                        <button
-                          key={user.id}
-                          className={cn(
-                            "rounded-full border px-3 py-2 text-sm transition",
-                            activeUser.id === user.id
-                              ? "border-cyan-300/30 bg-cyan-300/12 text-cyan-100"
-                              : "border-white/10 bg-white/6 text-zinc-400 hover:text-zinc-100",
-                          )}
-                          onClick={() => setActiveUser(user.id)}
-                          type="button"
-                        >
-                          {user.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  <Input
-                    className="h-14 min-w-[190px] shrink-0"
-                    onChange={(event) => setCurrentDate(event.target.value)}
-                    type="date"
-                    value={currentDate}
-                  />
-                  <Button onClick={() => setQuickAddOpen(true)} type="button">
-                    <Plus className="size-4" />
-                    Quick add
-                  </Button>
-                  {isSessionUserLocked ? (
-                    <form action={signOutAction} className="shrink-0">
-                      <Button type="submit" variant="secondary">
-                        <LogOut className="size-4" />
-                        Logout
-                      </Button>
-                    </form>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-start gap-3 text-sm text-zinc-400">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2">
-                  <Bell className="size-4 text-amber-200" />
-                  {dueReminders.length} reminders due
-                </div>
-                {isSessionUserLocked ? (
-                  <Pill className="whitespace-nowrap" tone="sky">
-                    The other trader must use a separate login.
-                  </Pill>
-                ) : null}
-                {dueReminders.slice(0, 2).map((reminder) => (
-                  <Pill key={reminder.id} className="max-w-full text-left leading-[1.25]" tone="amber">
-                    {reminder.time} {reminder.message}
-                  </Pill>
-                ))}
-              </div>
-            </Panel>
-          </header>
+              ) : null}
+            </div>
+          </div>
 
           <main>{children}</main>
         </div>
       </div>
-
-      <QuickAddDrawer onClose={() => setQuickAddOpen(false)} open={quickAddOpen} />
     </div>
   );
 }

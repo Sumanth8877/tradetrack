@@ -2,6 +2,7 @@
 
 import { Settings2, ShieldCheck, Users2 } from "lucide-react";
 
+import { signOutAction } from "@/app/actions";
 import { useWorkspace } from "@/components/workspace/workspace-provider";
 import {
   Button,
@@ -155,6 +156,20 @@ export function SettingsPage() {
               Reset demo workspace
             </Button>
           </Panel>
+
+          {isSessionUserLocked ? (
+            <Panel className="space-y-4">
+              <SectionTitle
+                description="End the current workspace session from here."
+                title="Account"
+              />
+              <form action={signOutAction}>
+                <Button className="w-full" type="submit" variant="secondary">
+                  Logout
+                </Button>
+              </form>
+            </Panel>
+          ) : null}
         </div>
       </div>
     </div>
