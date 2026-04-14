@@ -40,6 +40,20 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         <aside className="hidden w-80 shrink-0 xl:block">
           <Panel className="sticky top-4 flex h-[calc(100vh-2rem)] flex-col justify-between p-6">
             <div>
+              <div className="mb-6 rounded-[24px] border border-cyan-300/12 bg-cyan-300/8 p-4">
+                <p className="text-xs uppercase tracking-[0.24em] text-cyan-100/70">
+                  Profile
+                </p>
+                <div className="mt-3">
+                  <UserTag
+                    accent={activeUser.accent}
+                    avatar={activeUser.avatar}
+                    className="w-full justify-start"
+                    name={activeUser.name}
+                  />
+                </div>
+              </div>
+
               <nav className="space-y-2">
                 {navItems.map((item) => {
                   const active =
@@ -71,14 +85,6 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-6 flex justify-end">
-            <UserTag
-              accent={activeUser.accent}
-              avatar={activeUser.avatar}
-              className="whitespace-nowrap"
-              name={activeUser.name}
-            />
-          </div>
           <main>{children}</main>
         </div>
       </div>
