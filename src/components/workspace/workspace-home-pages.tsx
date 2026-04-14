@@ -57,19 +57,28 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <PageIntro
-        action={
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-zinc-400">
+            <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(125,211,252,0.8)]" />
+            Dashboard
+          </div>
           <UserTag
             accent={activeUser.accent}
             avatar={activeUser.avatar}
             className="whitespace-nowrap"
             name={activeUser.name}
           />
-        }
-        description="Shared daily command center for planning, execution, review, journaling, and learning consistency."
-        eyebrow="Dashboard"
-        title="One place to coordinate both schedules, capture trades quickly, and see whether the process stayed clean."
-      />
+        </div>
+        <div className="space-y-2">
+          <h1 className="max-w-4xl text-balance text-3xl font-semibold leading-[0.98] tracking-[-0.045em] text-zinc-50 sm:text-4xl">
+            One place to coordinate both schedules, capture trades quickly, and see whether the process stayed clean.
+          </h1>
+          <p className="max-w-3xl text-pretty text-sm leading-7 text-zinc-400 sm:text-base">
+            Shared daily command center for planning, execution, review, journaling, and learning consistency.
+          </p>
+        </div>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard

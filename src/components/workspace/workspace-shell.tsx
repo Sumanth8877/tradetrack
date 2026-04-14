@@ -14,8 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { useWorkspace } from "@/components/workspace/workspace-provider";
-import { Panel, Pill } from "@/components/workspace/workspace-ui";
+import { Panel } from "@/components/workspace/workspace-ui";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -31,7 +30,6 @@ const navItems = [
 ];
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
-  const { summary } = useWorkspace();
   const pathname = usePathname();
 
   return (
@@ -67,20 +65,6 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
               </nav>
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-                  Daily Snapshot
-                </p>
-                <div className="mt-3 grid gap-3">
-                  <Pill tone="cyan">{summary.pendingTasks} items left today</Pill>
-                  <Pill tone="emerald">{summary.winLossLabel} current trade mix</Pill>
-                  <Pill tone="amber">
-                    {summary.learningHours.toFixed(1)}h completed learning
-                  </Pill>
-                </div>
-              </div>
-            </div>
           </Panel>
         </aside>
 
