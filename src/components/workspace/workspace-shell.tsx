@@ -74,7 +74,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                 <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">
                   Shared Desk
                 </p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+                <h2 className="mt-3 max-w-[8ch] text-2xl font-semibold leading-[1.05] tracking-[-0.04em]">
                   {seed.workspaceName}
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-zinc-400">
@@ -82,7 +82,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                 </p>
               </div>
 
-              <nav className="mt-6 space-y-1">
+              <nav className="mt-6 space-y-2">
                 {navItems.map((item) => {
                   const active = pathname === item.href;
                   const Icon = item.icon;
@@ -91,9 +91,9 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                     <Link
                       key={item.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition",
+                        "flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium leading-none transition",
                         active
-                          ? "bg-white text-slate-950"
+                          ? "bg-white text-slate-950 shadow-[0_18px_50px_-28px_rgba(255,255,255,0.85)]"
                           : "text-zinc-400 hover:bg-white/8 hover:text-zinc-100",
                       )}
                       href={item.href}
@@ -146,11 +146,11 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         <div className="min-w-0 flex-1">
           <header className="sticky top-4 z-30 mb-6">
             <Panel className="p-4 sm:p-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="relative flex-1">
                   <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
                   <Input
-                    className="pl-11"
+                    className="h-14 pl-11"
                     onChange={(event) => setSearchQuery(event.target.value)}
                     placeholder="Search tasks, notes, journals, trades, and resources"
                     value={searchQuery}
@@ -179,11 +179,15 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                   ) : null}
                 </div>
 
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-start lg:justify-end">
                   {isSessionUserLocked && session ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Pill tone="cyan">Signed in as {headerUser.name}</Pill>
-                      <Pill tone="zinc">@{session.username}</Pill>
+                    <div className="flex flex-col items-start gap-2 self-stretch">
+                      <Pill className="whitespace-nowrap" tone="cyan">
+                        Signed in as {headerUser.name}
+                      </Pill>
+                      <Pill className="whitespace-nowrap" tone="zinc">
+                        @{session.username}
+                      </Pill>
                     </div>
                   ) : (
                     <div className="flex flex-wrap items-center gap-2">
@@ -205,19 +209,19 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                     </div>
                   )}
                   <Input
-                    className="min-w-[170px]"
+                    className="h-14 min-w-[190px] shrink-0"
                     onChange={(event) => setCurrentDate(event.target.value)}
                     type="date"
                     value={currentDate}
                   />
                   <Button onClick={() => setQuickAddOpen(true)} type="button">
-                    <Plus className="mr-2 size-4" />
+                    <Plus className="size-4" />
                     Quick add
                   </Button>
                   {isSessionUserLocked ? (
-                    <form action={signOutAction}>
+                    <form action={signOutAction} className="shrink-0">
                       <Button type="submit" variant="secondary">
-                        <LogOut className="mr-2 size-4" />
+                        <LogOut className="size-4" />
                         Logout
                       </Button>
                     </form>
@@ -225,16 +229,18 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-zinc-400">
+              <div className="mt-4 flex flex-wrap items-start gap-3 text-sm text-zinc-400">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2">
                   <Bell className="size-4 text-amber-200" />
                   {dueReminders.length} reminders due
                 </div>
                 {isSessionUserLocked ? (
-                  <Pill tone="sky">The other trader must use a separate login.</Pill>
+                  <Pill className="whitespace-nowrap" tone="sky">
+                    The other trader must use a separate login.
+                  </Pill>
                 ) : null}
                 {dueReminders.slice(0, 2).map((reminder) => (
-                  <Pill key={reminder.id} tone="amber">
+                  <Pill key={reminder.id} className="max-w-full text-left leading-[1.25]" tone="amber">
                     {reminder.time} {reminder.message}
                   </Pill>
                 ))}

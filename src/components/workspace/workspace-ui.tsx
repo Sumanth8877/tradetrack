@@ -46,22 +46,22 @@ export function PageIntro({
   title: string;
 }) {
   return (
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-      <div className="space-y-3">
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start xl:gap-6">
+      <div className="min-w-0 space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-zinc-400">
           <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(125,211,252,0.8)]" />
           {eyebrow}
         </div>
         <div className="space-y-2">
-          <h1 className="max-w-4xl text-3xl font-semibold tracking-[-0.04em] text-zinc-50 sm:text-4xl">
+          <h1 className="max-w-4xl text-balance text-3xl font-semibold leading-[0.98] tracking-[-0.045em] text-zinc-50 sm:text-4xl">
             {title}
           </h1>
-          <p className="max-w-3xl text-sm leading-7 text-zinc-400 sm:text-base">
+          <p className="max-w-3xl text-pretty text-sm leading-7 text-zinc-400 sm:text-base">
             {description}
           </p>
         </div>
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? <div className="shrink-0 self-start xl:justify-self-end">{action}</div> : null}
     </div>
   );
 }
@@ -80,19 +80,27 @@ export function MetricCard({
   value: string;
 }) {
   return (
-    <Panel className="relative overflow-hidden">
+    <Panel className="relative flex min-h-[188px] overflow-hidden">
       <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">{label}</p>
-          <p className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-50">
-            {value}
-          </p>
-          {meta ? <p className="mt-2 text-sm text-zinc-400">{meta}</p> : null}
+      <div className="flex h-full w-full items-start justify-between gap-4">
+        <div className="flex min-w-0 flex-1 flex-col justify-between">
+          <div>
+            <p className="text-xs uppercase leading-none tracking-[0.24em] text-zinc-500">
+              {label}
+            </p>
+            <p className="mt-5 text-3xl font-semibold leading-none tracking-[-0.04em] text-zinc-50">
+              {value}
+            </p>
+          </div>
+          {meta ? (
+            <p className="mt-4 max-w-[24ch] text-pretty text-sm leading-6 text-zinc-400">
+              {meta}
+            </p>
+          ) : null}
         </div>
         <div
           className={cn(
-            "grid size-11 place-items-center rounded-2xl border",
+            "grid size-11 shrink-0 place-items-center rounded-2xl border",
             getToneStyle(tone),
           )}
         >
@@ -114,12 +122,14 @@ export function SectionTitle({
 }) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h2 className="text-lg font-semibold tracking-[-0.03em] text-zinc-50">
+      <div className="min-w-0">
+        <h2 className="text-pretty text-lg font-semibold leading-tight tracking-[-0.03em] text-zinc-50">
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 text-sm text-zinc-400">{description}</p>
+          <p className="mt-1 max-w-2xl text-pretty text-sm leading-6 text-zinc-400">
+            {description}
+          </p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
@@ -130,15 +140,18 @@ export function SectionTitle({
 export function Pill({
   children,
   tone = "zinc",
+  className,
 }: {
   children: ReactNode;
+  className?: string;
   tone?: keyof typeof toneStyles;
 }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium",
+        "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium leading-[1.15]",
         getToneStyle(tone),
+        className,
       )}
     >
       {children}
@@ -169,13 +182,20 @@ export function UserTag({
   name,
   avatar,
   accent,
+  className,
 }: {
   accent: string;
   avatar: string;
+  className?: string;
   name: string;
 }) {
   return (
-    <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-3 py-2">
+    <div
+      className={cn(
+        "inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-black/20 px-3 py-2",
+        className,
+      )}
+    >
       <div
         className={cn(
           "grid size-8 place-items-center rounded-full bg-gradient-to-br text-xs font-semibold text-slate-950",
@@ -184,7 +204,9 @@ export function UserTag({
       >
         {avatar}
       </div>
-      <span className="text-sm text-zinc-200">{name}</span>
+      <span className="truncate whitespace-nowrap text-sm leading-none text-zinc-200">
+        {name}
+      </span>
     </div>
   );
 }
@@ -404,7 +426,7 @@ export function Input({
   return (
     <input
       className={cn(
-        "w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/15",
+        "min-h-14 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/15",
         className,
       )}
       {...props}
@@ -419,7 +441,7 @@ export function Select({
   return (
     <select
       className={cn(
-        "w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/15",
+        "min-h-14 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/15",
         className,
       )}
       {...props}
@@ -452,7 +474,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold leading-none whitespace-nowrap transition disabled:cursor-not-allowed disabled:opacity-60",
         variant === "primary"
           ? "bg-cyan-300 text-slate-950 hover:bg-cyan-200"
           : variant === "secondary"

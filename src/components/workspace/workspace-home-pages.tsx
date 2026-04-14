@@ -58,7 +58,14 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageIntro
-        action={<UserTag accent={activeUser.accent} avatar={activeUser.avatar} name={activeUser.name} />}
+        action={
+          <UserTag
+            accent={activeUser.accent}
+            avatar={activeUser.avatar}
+            className="whitespace-nowrap"
+            name={activeUser.name}
+          />
+        }
         description="Shared daily command center for planning, execution, review, journaling, and learning consistency."
         eyebrow="Dashboard"
         title="One place to coordinate both schedules, capture trades quickly, and see whether the process stayed clean."
