@@ -1,23 +1,13 @@
 import OpenAI from "openai";
 
-import { getDeepSeekEnv } from "@/lib/env";
+import type { DeepSeekRuntimeConfig } from "@/lib/deepseek-settings";
 import type { WorkspaceAnalyticsInsightPayload } from "@/lib/workspace-analytics-ai";
 
-let cachedClient: OpenAI | null = null;
-let cachedBaseUrl: string | null = null;
-
-function getClient() {
-  const env = getDeepSeekEnv();
-
-  if (!cachedClient || cachedBaseUrl !== env.baseUrl) {
-    cachedClient = new OpenAI({
-      apiKey: env.key,
-      baseURL: env.baseUrl,
-    });
-    cachedBaseUrl = env.baseUrl;
-  }
-
-  return cachedClient;
+function createClient(config: DeepSeekRuntimeConfig) {
+  return new OpenAI({
+    apiKey: config.key,
+    baseURL: config.baseUrl,
+  });
 }
 
 const analyticsInstructions =
@@ -25,9 +15,9 @@ const analyticsInstructions =
 
 export async function generateWorkspaceAnalyticsInsight(
   payload: WorkspaceAnalyticsInsightPayload,
+  config: DeepSeekRuntimeConfig,
 ) {
-  const env = getDeepSeekEnv();
-  const completion = await getClient().chat.completions.create({
+  const completion = await createClient(config).chat.completions.create({
     messages: [
       {
         role: "system",
@@ -39,7 +29,7 @@ export async function generateWorkspaceAnalyticsInsight(
       },
     ],
     max_tokens: 320,
-    model: env.model,
+    model: config.model,
     temperature: 0.2,
   });
 
@@ -59,6 +49,6 @@ export async function generateWorkspaceAnalyticsInsight(
 
   return {
     body,
-    model: env.model,
+    model: config.model,
   };
 }

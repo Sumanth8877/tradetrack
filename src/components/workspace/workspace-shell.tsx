@@ -9,13 +9,15 @@ import {
   FileText,
   FolderKanban,
   LayoutDashboard,
+  LogOut,
   NotebookPen,
   Settings,
   TrendingUp,
 } from "lucide-react";
 
+import { signOutAction } from "@/app/actions";
 import { useWorkspace } from "@/components/workspace/workspace-provider";
-import { Panel, UserTag } from "@/components/workspace/workspace-ui";
+import { Button, Panel, UserTag } from "@/components/workspace/workspace-ui";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -31,7 +33,7 @@ const navItems = [
 ];
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
-  const { activeUser } = useWorkspace();
+  const { activeUser, isSessionUserLocked } = useWorkspace();
   const pathname = usePathname();
 
   return (
@@ -78,6 +80,18 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                     </Link>
                   );
                 })}
+                {isSessionUserLocked ? (
+                  <form action={signOutAction}>
+                    <Button
+                      className="flex min-h-14 w-full justify-start gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-medium text-zinc-300 hover:border-white/8 hover:bg-white/6 hover:text-zinc-50"
+                      type="submit"
+                      variant="ghost"
+                    >
+                      <LogOut className="size-4" />
+                      Logout
+                    </Button>
+                  </form>
+                ) : null}
               </nav>
             </div>
 

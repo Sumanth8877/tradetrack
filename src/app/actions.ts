@@ -1,12 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { generateDailyInsightIfNeeded, generateWeeklySummary } from "@/lib/ai";
 import { getAuthUserByUsername } from "@/lib/auth-users";
+import { DEEPSEEK_API_KEY_COOKIE } from "@/lib/deepseek-settings";
 import {
+  hasDeepSeekEnv,
   hasOpenAiEnv,
   hasSupabaseAdminEnv,
   hasSupabaseEnv,
@@ -48,6 +51,15 @@ const mistakeSchema = z.object({
   occurredOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   severity: z.number().int().min(1).max(5),
 });
+
+const deepSeekApiKeySchema = z.object({
+  apiKey: z.string().trim().min(8, "Enter a valid DeepSeek API key.").max(500),
+});
+
+type DeepSeekApiKeyActionState = {
+  message: string;
+  status: "error" | "idle" | "success";
+};
 
 async function requireSupabaseUser() {
   if (!hasSupabaseEnv()) {
@@ -216,6 +228,72 @@ export async function signOutAction() {
   const { supabase } = await requireSupabaseUser();
   await supabase.auth.signOut();
   redirect("/login?flash=signed_out");
+}
+
+export async function saveDeepSeekApiKeyAction(
+  _prevState: DeepSeekApiKeyActionState,
+  formData: FormData,
+): Promise<DeepSeekApiKeyActionState> {
+  await requireSupabaseUser();
+
+  const parsed = deepSeekApiKeySchema.safeParse({
+    apiKey: toRequiredString(formData.get("api_key")),
+  });
+
+  if (!parsed.success) {
+    return {
+      message:
+        parsed.error.flatten().fieldErrors.apiKey?.[0] ??
+        "Enter a valid DeepSeek API key.",
+      status: "error",
+    };
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set(DEEPSEEK_API_KEY_COOKIE, parsed.data.apiKey, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 24 * 365,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/analytics");
+
+  return {
+    message: "DeepSeek API key saved. Analytics will use it on the server.",
+    status: "success",
+  };
+}
+
+export async function deleteDeepSeekApiKeyAction(
+  prevState: DeepSeekApiKeyActionState,
+  formData: FormData,
+): Promise<DeepSeekApiKeyActionState> {
+  void prevState;
+  void formData;
+
+  await requireSupabaseUser();
+
+  const cookieStore = await cookies();
+  cookieStore.set(DEEPSEEK_API_KEY_COOKIE, "", {
+    httpOnly: true,
+    maxAge: 0,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/analytics");
+
+  return {
+    message: hasDeepSeekEnv()
+      ? "Stored DeepSeek API key removed. Analytics will fall back to the server environment key."
+      : "Stored DeepSeek API key removed.",
+    status: "success",
+  };
 }
 
 export async function createTaskAction(formData: FormData) {

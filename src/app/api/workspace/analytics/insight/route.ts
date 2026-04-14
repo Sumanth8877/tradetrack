@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { generateWorkspaceAnalyticsInsight } from "@/lib/deepseek";
-import { hasDeepSeekEnv } from "@/lib/env";
+import { getDeepSeekRuntimeConfig } from "@/lib/deepseek-settings";
 
 export const runtime = "nodejs";
 
@@ -71,11 +71,13 @@ const requestSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  if (!hasDeepSeekEnv()) {
+  const config = await getDeepSeekRuntimeConfig();
+
+  if (!config) {
     return NextResponse.json(
       {
         error:
-          "DeepSeek is not configured. Add DEEPSEEK_API_KEY in your environment before using AI analytics.",
+          "DeepSeek is not configured. Save an API key in Settings or add DEEPSEEK_API_KEY in the server environment.",
       },
       { status: 503 },
     );
@@ -84,7 +86,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { payload } = requestSchema.parse(body);
-    const insight = await generateWorkspaceAnalyticsInsight(payload);
+    const insight = await generateWorkspaceAnalyticsInsight(payload, config);
 
     return NextResponse.json(insight);
   } catch (error) {
