@@ -31,7 +31,7 @@ const navItems = [
 ];
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
-  const { seed, summary } = useWorkspace();
+  const { summary } = useWorkspace();
   const pathname = usePathname();
 
   return (
@@ -40,19 +40,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         <aside className="hidden w-80 shrink-0 xl:block">
           <Panel className="sticky top-4 flex h-[calc(100vh-2rem)] flex-col justify-between p-6">
             <div>
-              <div className="rounded-[28px] border border-white/10 bg-white/6 p-5">
-                <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">
-                  Shared Desk
-                </p>
-                <h2 className="mt-3 max-w-[8ch] text-2xl font-semibold leading-[1.05] tracking-[-0.04em]">
-                  {seed.workspaceName}
-                </h2>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">
-                  Two-user daily planner, journal, trade log, and review cockpit.
-                </p>
-              </div>
-
-              <nav className="mt-6 space-y-2">
+              <nav className="space-y-2">
                 {navItems.map((item) => {
                   const active =
                     pathname === item.href ||
