@@ -7,7 +7,6 @@ import { signInAction } from "@/app/actions";
 import { FlashBanner } from "@/components/flash-banner";
 import { LoginSubmitButton } from "@/components/login-submit-button";
 import { LoginStage } from "@/components/login-stage";
-import { PasswordResetDialog } from "@/components/password-reset-dialog";
 import { SectionCard } from "@/components/section-card";
 import {
   inputClass,
@@ -85,7 +84,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </h1>
       <p className="mt-4 text-center text-sm leading-6 text-zinc-400 sm:text-base">
         Each trader uses a separate username and password. Logging out returns to
-        this screen so the other account can sign in independently.
+        this screen so the other account can sign in independently. Account setup
+        and password changes are handled outside this public screen.
       </p>
 
       <FlashBanner code={flashCode} />
@@ -131,10 +131,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <LoginSubmitButton />
         </div>
       </form>
-
-      <div className="mt-3 flex justify-stretch sm:justify-end">
-        <PasswordResetDialog />
-      </div>
     </LoginStage>
   );
 }

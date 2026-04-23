@@ -26,6 +26,7 @@ import {
   workspaceSeed,
 } from "@/lib/workspace-data";
 import type { WorkspaceSession } from "@/lib/workspace-session";
+import { htmlToPlainText } from "@/lib/utils";
 
 type WorkspaceContextValue = {
   activeUser: WorkspaceUser;
@@ -90,7 +91,7 @@ function coerceSeedForSession(
   if (session) {
     const baseSeed = seed.users.some((user) => user.id === session.workspaceUserId)
       ? seed
-      : workspaceSeed;
+      : defaultWorkspaceSeed;
 
     if (baseSeed.activeUserId === session.workspaceUserId) {
       return baseSeed;
@@ -110,8 +111,23 @@ function coerceSeedForSession(
 
   return {
     ...seed,
-    activeUserId: workspaceSeed.activeUserId,
+    activeUserId: defaultWorkspaceSeed.activeUserId,
   };
+}
+
+function getTaskEventTone(
+  status: TaskStatus,
+  priority: PlannerTask["priority"],
+) {
+  if (status === "completed") {
+    return "emerald";
+  }
+
+  if (status === "skipped" || status === "overdue") {
+    return "rose";
+  }
+
+  return priority === "critical" ? "rose" : "cyan";
 }
 
 function buildCalendarEventFromTask(task: PlannerTask) {
@@ -122,12 +138,7 @@ function buildCalendarEventFromTask(task: PlannerTask) {
     label: task.title,
     ownerId: task.assignedTo,
     startTime: task.startTime,
-    tone:
-      task.status === "completed"
-        ? "emerald"
-        : task.priority === "critical"
-          ? "rose"
-          : "cyan",
+    tone: getTaskEventTone(task.status, task.priority),
     type:
       task.category === "learning"
         ? "learning"
@@ -156,6 +167,28 @@ function buildCalendarEventFromTrade(trade: TradeRecord) {
     type: "trade" as const,
   };
 }
+
+function rebuildCalendarEvents(seed: Pick<WorkspaceSeed, "tasks" | "trades">) {
+  return [
+    ...seed.tasks.map(buildCalendarEventFromTask),
+    ...seed.trades.map(buildCalendarEventFromTrade),
+  ];
+}
+
+function normalizeStoredSeed(seed: WorkspaceSeed): WorkspaceSeed {
+  return {
+    ...seed,
+    calendarEvents: rebuildCalendarEvents(seed),
+    notes: seed.notes.map((note) => ({
+      ...note,
+      bodyHtml: htmlToPlainText(
+        typeof note.bodyHtml === "string" ? note.bodyHtml : "",
+      ),
+    })),
+  };
+}
+
+const defaultWorkspaceSeed = normalizeStoredSeed(workspaceSeed);
 
 function createLinkedAttachments(
   names: string[],
@@ -195,14 +228,16 @@ function isWorkspaceSeed(value: unknown): value is WorkspaceSeed {
 
 function safeParseSeed(raw: string | null) {
   if (!raw) {
-    return workspaceSeed;
+    return defaultWorkspaceSeed;
   }
 
   try {
     const parsed = JSON.parse(raw);
-    return isWorkspaceSeed(parsed) ? parsed : workspaceSeed;
+    return isWorkspaceSeed(parsed)
+      ? normalizeStoredSeed(parsed)
+      : defaultWorkspaceSeed;
   } catch {
-    return workspaceSeed;
+    return defaultWorkspaceSeed;
   }
 }
 
@@ -228,7 +263,7 @@ function readStoredSeed(storageKey: string) {
       error: summarizeStorageError(error),
       storageKey,
     });
-    return workspaceSeed;
+    return defaultWorkspaceSeed;
   }
 }
 
@@ -245,7 +280,7 @@ function writeStoredSeed(storageKey: string, seed: WorkspaceSeed) {
 
 function getSnapshot(storageKey: string, session: WorkspaceSession | null) {
   if (typeof window === "undefined") {
-    return coerceSeedForSession(workspaceSeed, session);
+    return coerceSeedForSession(defaultWorkspaceSeed, session);
   }
 
   if (!initializedKeys.has(storageKey)) {
@@ -255,7 +290,7 @@ function getSnapshot(storageKey: string, session: WorkspaceSession | null) {
   }
 
   return coerceSeedForSession(
-    storeSnapshots.get(storageKey) ?? workspaceSeed,
+    storeSnapshots.get(storageKey) ?? defaultWorkspaceSeed,
     session,
   );
 }
@@ -275,7 +310,7 @@ function commitSeed(
   updater: (current: WorkspaceSeed) => WorkspaceSeed,
 ) {
   const next = coerceSeedForSession(
-    updater(getSnapshot(storageKey, session)),
+    normalizeStoredSeed(updater(getSnapshot(storageKey, session))),
     session,
   );
   storeSnapshots.set(storageKey, next);
@@ -296,7 +331,7 @@ export function WorkspaceProvider({
 }) {
   const storageKey = getStorageKey(session);
   const fallbackSeed = useMemo(
-    () => coerceSeedForSession(workspaceSeed, session),
+    () => coerceSeedForSession(defaultWorkspaceSeed, session),
     [session],
   );
   const seed = useSyncExternalStore(
@@ -373,10 +408,6 @@ export function WorkspaceProvider({
           commitSeed(storageKey, session, (current) => ({
             ...current,
             attachments: [...attachments, ...current.attachments],
-            calendarEvents: [
-              buildCalendarEventFromTask(task),
-              ...current.calendarEvents,
-            ],
             tasks: [task, ...current.tasks],
           }));
         });
@@ -394,14 +425,6 @@ export function WorkspaceProvider({
           commitSeed(storageKey, session, (current) => ({
             ...current,
             attachments: [...createdAttachments, ...current.attachments],
-            calendarEvents: [
-              buildCalendarEventFromTrade({
-                ...trade,
-                afterScreenshotId: after,
-                beforeScreenshotId: before,
-              }),
-              ...current.calendarEvents,
-            ],
             trades: [
               {
                 ...trade,
@@ -419,7 +442,7 @@ export function WorkspaceProvider({
       isSessionUserLocked: Boolean(sessionUser),
       resetWorkspace() {
         startTransition(() => {
-          commitSeed(storageKey, session, () => workspaceSeed);
+          commitSeed(storageKey, session, () => defaultWorkspaceSeed);
         });
       },
       seed,
@@ -467,26 +490,32 @@ export function WorkspaceProvider({
         });
       },
       updateNoteBody(noteId, bodyHtml, changedBy) {
+        const nextBodyHtml = htmlToPlainText(bodyHtml);
+
         startTransition(() => {
           commitSeed(storageKey, session, (current) => ({
             ...current,
-            notes: current.notes.map((note) =>
-              note.id === noteId
-                ? {
-                    ...note,
-                    bodyHtml,
-                    updatedAt: new Date().toISOString(),
-                    versions: [
-                      {
-                        changedAt: new Date().toISOString(),
-                        changedBy,
-                        summary: "Edited note body",
-                      },
-                      ...note.versions,
-                    ],
-                  }
-                : note,
-            ),
+            notes: current.notes.map((note) => {
+              if (note.id !== noteId || note.bodyHtml === nextBodyHtml) {
+                return note;
+              }
+
+              const changedAt = new Date().toISOString();
+
+              return {
+                ...note,
+                bodyHtml: nextBodyHtml,
+                updatedAt: changedAt,
+                versions: [
+                  {
+                    changedAt,
+                    changedBy,
+                    summary: "Edited note body",
+                  },
+                  ...note.versions,
+                ],
+              };
+            }),
           }));
         });
       },
@@ -513,19 +542,6 @@ export function WorkspaceProvider({
         startTransition(() => {
           commitSeed(storageKey, session, (current) => ({
             ...current,
-            calendarEvents: current.calendarEvents.map((event) =>
-              event.id === `cal-${taskId}`
-                ? {
-                    ...event,
-                    tone:
-                      status === "completed"
-                        ? "emerald"
-                        : status === "skipped" || status === "overdue"
-                          ? "rose"
-                          : event.tone,
-                  }
-                : event,
-            ),
             tasks: current.tasks.map((task) =>
               task.id === taskId ? { ...task, status } : task,
             ),

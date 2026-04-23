@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Bookmark, Heart, Pin, Search, Star } from "lucide-react";
 
 import { useWorkspace } from "@/components/workspace/workspace-provider";
@@ -17,8 +17,38 @@ import {
   Select,
   StackList,
   StatusPill,
+  Textarea,
 } from "@/components/workspace/workspace-ui";
 import { getJournalForDate } from "@/lib/workspace-data";
+
+function NoteEditor({
+  initialBody,
+  onSave,
+}: {
+  initialBody: string;
+  onSave: (nextBody: string) => void;
+}) {
+  const [draftBody, setDraftBody] = useState(initialBody);
+
+  return (
+    <>
+      <Textarea
+        className="min-h-72 rounded-[24px] border-white/10 bg-black/20 p-5 text-sm leading-7 text-zinc-100"
+        onChange={(event) => setDraftBody(event.target.value)}
+        value={draftBody}
+      />
+      <div className="flex justify-end">
+        <Button
+          onClick={() => onSave(draftBody)}
+          disabled={draftBody === initialBody}
+          type="button"
+        >
+          Save note
+        </Button>
+      </div>
+    </>
+  );
+}
 
 export function JournalPage() {
   const { currentDate, seed } = useWorkspace();
@@ -170,7 +200,6 @@ export function NotesPage() {
     useWorkspace();
   const [query, setQuery] = useState("");
   const [selectedNoteId, setSelectedNoteId] = useState(seed.notes[0]?.id ?? "");
-  const editorRef = useRef<HTMLDivElement>(null);
 
   const filteredNotes = useMemo(
     () =>
@@ -183,10 +212,6 @@ export function NotesPage() {
   );
   const selectedNote =
     filteredNotes.find((note) => note.id === selectedNoteId) ?? null;
-
-  const applyCommand = (command: string) => {
-    document.execCommand(command);
-  };
 
   return (
     <div className="space-y-6">
@@ -254,7 +279,7 @@ export function NotesPage() {
         <div className="space-y-6">
           <Panel className="space-y-4">
             <SectionTitle
-              description="Simple rich-text editing with quick formatting controls."
+              description="Edit plain-text notes safely without rendering stored HTML."
               title={selectedNote?.title ?? "Select a note"}
               action={
                 selectedNote ? (
@@ -281,45 +306,17 @@ export function NotesPage() {
             />
 
             {selectedNote ? (
-              <>
-                <div className="flex flex-wrap gap-2">
-                  <Button onClick={() => applyCommand("bold")} type="button" variant="secondary">
-                    Bold
-                  </Button>
-                  <Button onClick={() => applyCommand("italic")} type="button" variant="secondary">
-                    Italic
-                  </Button>
-                  <Button
-                    onClick={() => applyCommand("insertUnorderedList")}
-                    type="button"
-                    variant="secondary"
-                  >
-                    Bullet list
-                  </Button>
-                </div>
-                <div
-                  key={selectedNote.id}
-                  ref={editorRef}
-                  className="min-h-72 rounded-[24px] border border-white/10 bg-black/20 p-5 text-sm leading-7 text-zinc-100 outline-none"
-                  contentEditable
-                  dangerouslySetInnerHTML={{ __html: selectedNote.bodyHtml }}
-                  suppressContentEditableWarning
-                />
-                <div className="flex justify-end">
-                  <Button
-                    onClick={() =>
-                      updateNoteBody(
-                        selectedNote.id,
-                        editorRef.current?.innerHTML ?? selectedNote.bodyHtml,
-                        activeUser.id,
-                      )
-                    }
-                    type="button"
-                  >
-                    Save note
-                  </Button>
-                </div>
-              </>
+              <NoteEditor
+                key={selectedNote.id}
+                initialBody={selectedNote.bodyHtml}
+                onSave={(draftBody) =>
+                  updateNoteBody(
+                    selectedNote.id,
+                    draftBody,
+                    activeUser.id,
+                  )
+                }
+              />
             ) : (
               <EmptyState
                 description="Search returned no notes."

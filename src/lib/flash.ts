@@ -7,11 +7,6 @@ type FlashMessage = {
 };
 
 const FLASH_MESSAGES: Record<string, FlashMessage> = {
-  attendance_saved: {
-    message: "Today's attendance checkpoint is recorded.",
-    title: "Attendance updated",
-    tone: "success",
-  },
   auth_required: {
     message: "Sign in to access your dashboard.",
     title: "Authentication required",
@@ -32,26 +27,6 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     title: "Sign-in failed",
     tone: "error",
   },
-  mistake_saved: {
-    message: "The mistake is saved and available for future review.",
-    title: "Mistake logged",
-    tone: "success",
-  },
-  password_reset: {
-    message: "Password reset complete. Sign in with the new password.",
-    title: "Password updated",
-    tone: "success",
-  },
-  reset_failed: {
-    message: "Password reset failed. Check the username, reset key, and Supabase user setup.",
-    title: "Reset failed",
-    tone: "error",
-  },
-  reset_unavailable: {
-    message: "Add SUPABASE_SERVICE_ROLE_KEY to enable username password resets.",
-    title: "Reset unavailable",
-    tone: "error",
-  },
   signed_in: {
     message: "Your workspace is ready.",
     title: "Signed in",
@@ -61,26 +36,6 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     message: "Your session was closed cleanly.",
     title: "Signed out",
     tone: "info",
-  },
-  task_saved: {
-    message: "Today's checklist was updated.",
-    title: "Task saved",
-    tone: "success",
-  },
-  task_toggled: {
-    message: "Checklist progress has been refreshed.",
-    title: "Task updated",
-    tone: "success",
-  },
-  trade_saved: {
-    message: "The trade is in your journal and today's dashboard has been refreshed.",
-    title: "Trade logged",
-    tone: "success",
-  },
-  upload_failed: {
-    message: "The screenshot upload failed. The image may be too large or storage is not configured yet.",
-    title: "Upload failed",
-    tone: "error",
   },
 };
 

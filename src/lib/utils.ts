@@ -61,6 +61,23 @@ export function toRequiredString(value: FormDataEntryValue | null) {
   return value.trim();
 }
 
+export function htmlToPlainText(value: string) {
+  return value
+    .replace(/<li\b[^>]*>/gi, "- ")
+    .replace(/<\/(p|div|h1|h2|h3|h4|h5|h6|li|blockquote|pre)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&#x27;/gi, "'")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function slugify(value: string) {
   return value
     .toLowerCase()

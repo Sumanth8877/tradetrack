@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getAuthUserBySupabaseUser } from "@/lib/auth-users";
 import { generateWorkspaceAnalyticsInsight } from "@/lib/deepseek";
 import { getDeepSeekRuntimeConfig } from "@/lib/deepseek-settings";
+import { hasSupabaseEnv } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -71,6 +74,34 @@ const requestSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!hasSupabaseEnv()) {
+    return NextResponse.json(
+      {
+        error: "Supabase authentication is not configured.",
+      },
+      { status: 503 },
+    );
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError && authError.name !== "AuthSessionMissingError") {
+    console.error("Analytics auth lookup failed", authError);
+  }
+
+  if (!user || !getAuthUserBySupabaseUser(user)) {
+    return NextResponse.json(
+      {
+        error: "Authentication required.",
+      },
+      { status: 401 },
+    );
+  }
+
   const config = await getDeepSeekRuntimeConfig();
 
   if (!config) {

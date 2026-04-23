@@ -1136,7 +1136,7 @@ function buildCalendarEvents() {
     tone:
       task.status === "completed"
         ? "emerald"
-        : task.priority === "critical"
+        : task.status === "skipped" || task.status === "overdue" || task.priority === "critical"
           ? "rose"
           : "cyan",
     type:
@@ -1319,7 +1319,7 @@ export function createEmptyResource(userId: string): ResourceItem {
 
 export function createEmptyNote(): NoteItem {
   return {
-    bodyHtml: "<p>Capture the setup, rule, or lesson here.</p>",
+    bodyHtml: "Capture the setup, rule, or lesson here.",
     category: "Strategy notes",
     favorite: false,
     folder: "Inbox",
