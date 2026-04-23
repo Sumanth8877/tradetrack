@@ -3,17 +3,13 @@ import {
   CandlestickChart,
 } from "lucide-react";
 
-import { signInAction } from "@/app/actions";
 import { FlashBanner } from "@/components/flash-banner";
-import { LoginSubmitButton } from "@/components/login-submit-button";
 import { LoginStage } from "@/components/login-stage";
 import { SectionCard } from "@/components/section-card";
-import {
-  inputClass,
-  labelClass,
-  subtleBadgeClass,
-} from "@/lib/styles";
+import { UsernameLoginForm } from "@/components/username-login-form";
+import { subtleBadgeClass } from "@/lib/styles";
 import { getWorkspaceAuthState } from "@/lib/workspace-session";
+import authUsers from "../../../config/auth-users.json";
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -88,49 +84,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         and password changes are handled outside this public screen.
       </p>
 
-      <FlashBanner code={flashCode} />
-
-      <form
-        action={signInAction}
-        autoComplete="off"
-        className="mt-8 space-y-5"
-      >
-        <div className="group relative">
-          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent opacity-0 transition duration-300 group-focus-within:opacity-100" />
-          <label className={labelClass} htmlFor="login-username">
-            Username
-          </label>
-          <input
-            autoComplete="off"
-            className={`${inputClass} login-input h-14 border-white/12 bg-black/40 text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]`}
-            id="login-username"
-            name="username"
-            placeholder="Enter username"
-            required
-            type="text"
-          />
-        </div>
-        <div className="group relative">
-          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent opacity-0 transition duration-300 group-focus-within:opacity-100" />
-          <label className={labelClass} htmlFor="login-password">
-            Password
-          </label>
-          <input
-            autoComplete="off"
-            className={`${inputClass} login-input h-14 border-white/12 bg-black/40 text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]`}
-            id="login-password"
-            minLength={8}
-            name="password"
-            placeholder="Enter password"
-            required
-            type="password"
-          />
-        </div>
-
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <LoginSubmitButton />
-        </div>
-      </form>
+      <UsernameLoginForm
+        flashCode={flashCode}
+        users={authUsers.map((user) => ({
+          aliases: user.aliases,
+          email: user.email,
+          username: user.username,
+        }))}
+      />
     </LoginStage>
   );
 }

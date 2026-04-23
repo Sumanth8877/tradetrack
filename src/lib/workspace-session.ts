@@ -1,8 +1,10 @@
 import { cache } from "react";
+import { headers } from "next/headers";
 
 import { getAuthUserBySupabaseUser } from "@/lib/auth-users";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { readWorkspaceAuthHeaders } from "@/lib/workspace-auth-headers";
 
 export type WorkspaceSession = {
   displayName: string;
@@ -26,6 +28,20 @@ export const getWorkspaceAuthState = cache(
   async (): Promise<WorkspaceAuthState> => {
     if (!hasSupabaseEnv()) {
       return { status: "unconfigured" };
+    }
+
+    const requestHeaders = await headers();
+    const headerAuthState = readWorkspaceAuthHeaders(requestHeaders);
+
+    if (headerAuthState?.status === "authenticated") {
+      return {
+        session: headerAuthState.session,
+        status: "authenticated",
+      };
+    }
+
+    if (headerAuthState?.status === "signed_out") {
+      return { status: "signed_out" };
     }
 
     const supabase = await createClient();
