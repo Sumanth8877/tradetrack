@@ -27,6 +27,11 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     title: "Sign-in failed",
     tone: "error",
   },
+  login_timeout: {
+    message: "The sign-in request took too long. Check your connection and try again.",
+    title: "Sign-in timed out",
+    tone: "error",
+  },
   signed_in: {
     message: "Your workspace is ready.",
     title: "Signed in",

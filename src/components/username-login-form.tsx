@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowRight, LoaderCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { FlashBanner } from "@/components/flash-banner";
@@ -43,7 +42,6 @@ export function UsernameLoginForm({
   flashCode?: string;
   users: LoginUser[];
 }) {
-  const router = useRouter();
   const [supabase] = useState(createClient);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,12 +80,17 @@ export function UsernameLoginForm({
 
           if (error) {
             setIsSubmitting(false);
-            setErrorCode("login_failed");
+            setErrorCode(
+              error.name === "AbortError" ||
+                (error.name === "AuthRetryableFetchError" &&
+                  /abort|timeout/i.test(error.message))
+                ? "login_timeout"
+                : "login_failed",
+            );
             return;
           }
 
-          router.replace("/");
-          router.refresh();
+          window.location.assign("/");
         }}
       >
         <div className="group relative">
