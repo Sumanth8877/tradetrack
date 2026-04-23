@@ -7,16 +7,6 @@ type FlashMessage = {
 };
 
 const FLASH_MESSAGES: Record<string, FlashMessage> = {
-  ai_limit: {
-    message: "TradeTrack stores AI results and caps insight generation at two runs per day.",
-    title: "AI limit reached",
-    tone: "info",
-  },
-  ai_unavailable: {
-    message: "Add a valid OpenAI key to enable fresh insight generation.",
-    title: "AI unavailable",
-    tone: "error",
-  },
   attendance_saved: {
     message: "Today's attendance checkpoint is recorded.",
     title: "Attendance updated",
@@ -43,14 +33,9 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     tone: "error",
   },
   mistake_saved: {
-    message: "The mistake is saved and will be included in weekly summaries.",
+    message: "The mistake is saved and available for future review.",
     title: "Mistake logged",
     tone: "success",
-  },
-  no_weekly_data: {
-    message: "Add trades or mistakes in the last seven days before generating a summary.",
-    title: "Not enough data",
-    tone: "info",
   },
   password_reset: {
     message: "Password reset complete. Sign in with the new password.",
@@ -96,11 +81,6 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
     message: "The screenshot upload failed. The image may be too large or storage is not configured yet.",
     title: "Upload failed",
     tone: "error",
-  },
-  weekly_summary_saved: {
-    message: "A fresh weekly summary is cached for the current seven-day window.",
-    title: "Weekly summary ready",
-    tone: "success",
   },
 };
 

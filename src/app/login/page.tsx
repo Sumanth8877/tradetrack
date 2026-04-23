@@ -47,9 +47,6 @@ function SetupState({ flashCode }: { flashCode?: string }) {
             <code className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
               NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
             </code>
-            <code className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-              OPENAI_API_KEY=
-            </code>
           </div>
         </SectionCard>
       </div>

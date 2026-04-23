@@ -1,13 +1,11 @@
 import type {
-  Mistake,
-  MistakeBreakdown,
   PatternSnapshot,
   Task,
   TaskProgress,
   Trade,
   TradeStats,
 } from "@/lib/types";
-import { getDateWindow, getTodayKey } from "@/lib/utils";
+import { getTodayKey } from "@/lib/utils";
 
 const OVERTRADING_THRESHOLD = 5;
 
@@ -48,22 +46,6 @@ export function calculateTaskProgress(tasks: Task[]): TaskProgress {
     percent: total > 0 ? (completed / total) * 100 : 0,
     total,
   };
-}
-
-export function calculateCommonMistakes(
-  mistakes: Mistake[],
-  limit = 3,
-): MistakeBreakdown[] {
-  const counts = new Map<string, number>();
-
-  for (const mistake of mistakes) {
-    counts.set(mistake.mistake_type, (counts.get(mistake.mistake_type) ?? 0) + 1);
-  }
-
-  return [...counts.entries()]
-    .map(([label, count]) => ({ count, label }))
-    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
-    .slice(0, limit);
 }
 
 export function calculatePatternSnapshot(trades: Trade[]): PatternSnapshot {
@@ -138,42 +120,5 @@ export function calculatePatternSnapshot(trades: Trade[]): PatternSnapshot {
       avgTradesPerActiveDay >= OVERTRADING_THRESHOLD - 0.5,
     overtradingThreshold: OVERTRADING_THRESHOLD,
     todayTradesCount,
-  };
-}
-
-export function buildDailyAiPayload(trades: Trade[], mistakes: Mistake[]) {
-  const today = getTodayKey();
-  const { startKey } = getDateWindow(14);
-  const tradesInFocus = trades.filter((trade) => trade.traded_on >= startKey);
-  const mistakesInFocus = mistakes.filter((mistake) => mistake.occurred_on >= startKey);
-
-  return {
-    commonMistakes: calculateCommonMistakes(mistakesInFocus),
-    generated_for: today,
-    patterns: calculatePatternSnapshot(tradesInFocus),
-    tradeStats: calculateTradeStats(
-      tradesInFocus.filter((trade) => trade.traded_on === today),
-    ),
-  };
-}
-
-export function buildWeeklyAiPayload(trades: Trade[], mistakes: Mistake[]) {
-  const { endKey, startKey } = getDateWindow(7);
-  const weeklyTrades = trades.filter(
-    (trade) => trade.traded_on >= startKey && trade.traded_on <= endKey,
-  );
-  const weeklyMistakes = mistakes.filter(
-    (mistake) => mistake.occurred_on >= startKey && mistake.occurred_on <= endKey,
-  );
-
-  return {
-    commonMistakes: calculateCommonMistakes(weeklyMistakes),
-    patterns: calculatePatternSnapshot(trades),
-    period: {
-      end: endKey,
-      start: startKey,
-    },
-    tradeStats: calculateTradeStats(weeklyTrades),
-    tradeTypesCovered: [...new Set(weeklyTrades.map((trade) => trade.trade_type))],
   };
 }

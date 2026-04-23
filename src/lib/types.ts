@@ -1,7 +1,5 @@
 export type FlashTone = "error" | "info" | "success";
 
-export type InsightKind = "daily" | "weekly";
-
 export type TradeDirection = "long" | "short";
 
 export type AttendanceStatus = "present" | "partial" | "missed";
@@ -85,48 +83,8 @@ export type PatternSnapshot = {
   todayTradesCount: number;
 };
 
-export type AiInsightPayload = {
-  commonMistakes: MistakeBreakdown[];
-  patterns: PatternSnapshot;
-  tradeStats: TradeStats;
-} & Record<string, unknown>;
-
-export type AiInsight = {
-  body: string;
-  created_at: string;
-  id: string;
-  kind: InsightKind;
-  model: string | null;
-  payload: AiInsightPayload | null;
-  period_end: string;
-  period_start: string;
-  title: string;
-  user_id: string;
-};
-
 export type TaskProgress = {
   completed: number;
   percent: number;
   total: number;
-};
-
-export type DashboardStats = {
-  checklist: TaskProgress;
-  mistakesThisWeek: number;
-  todayProfitLoss: number;
-  winRate: number;
-};
-
-export type DashboardData = {
-  latestInsight: AiInsight | null;
-  latestWeeklySummary: AiInsight | null;
-  patternSnapshot: PatternSnapshot;
-  recentAttendance: AttendanceRecord[];
-  recentMistakes: Mistake[];
-  recentTrades: Trade[];
-  recentTradesForAnalytics: Trade[];
-  stats: DashboardStats;
-  tasks: Task[];
-  today: string;
-  username: string | null;
 };

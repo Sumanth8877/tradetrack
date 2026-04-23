@@ -5,12 +5,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { generateDailyInsightIfNeeded, generateWeeklySummary } from "@/lib/ai";
 import { getAuthUserByUsername } from "@/lib/auth-users";
 import { DEEPSEEK_API_KEY_COOKIE } from "@/lib/deepseek-settings";
 import {
   hasDeepSeekEnv,
-  hasOpenAiEnv,
   hasSupabaseAdminEnv,
   hasSupabaseEnv,
 } from "@/lib/env";
@@ -431,12 +429,6 @@ export async function createTradeAction(formData: FormData) {
     redirect("/?flash=invalid_input");
   }
 
-  try {
-    await generateDailyInsightIfNeeded(supabase, user.id);
-  } catch (insightError) {
-    console.error("Daily insight generation failed", insightError);
-  }
-
   revalidatePath("/");
   redirect("/?flash=trade_saved");
 }
@@ -469,25 +461,4 @@ export async function createMistakeAction(formData: FormData) {
 
   revalidatePath("/");
   redirect("/?flash=mistake_saved");
-}
-
-export async function generateWeeklySummaryAction() {
-  const { supabase, user } = await requireSupabaseUser();
-
-  if (!hasOpenAiEnv()) {
-    redirect("/?flash=ai_unavailable");
-  }
-
-  const result = await generateWeeklySummary(supabase, user.id);
-
-  if (result.status === "limited") {
-    redirect("/?flash=ai_limit");
-  }
-
-  if (result.status === "skipped") {
-    redirect("/?flash=no_weekly_data");
-  }
-
-  revalidatePath("/");
-  redirect("/?flash=weekly_summary_saved");
 }

@@ -1,13 +1,13 @@
 # TradeTrack
 
-TradeTrack is a full-stack trading journal built with Next.js, Supabase, Tailwind CSS, and the OpenAI API. It focuses on low-friction journaling, simple daily planning, and cached AI feedback that stays within a small token budget.
+TradeTrack is a full-stack trading journal built with Next.js, Supabase, Tailwind CSS, and optional DeepSeek-powered analytics. It focuses on low-friction journaling, simple daily planning, and lightweight workspace insights.
 
 ## Stack
 
 - Next.js App Router
 - Supabase Auth, Postgres, and Storage
 - Tailwind CSS v4
-- OpenAI Responses API
+- Optional DeepSeek analytics
 - Vercel-ready deployment
 
 ## Features
@@ -17,17 +17,8 @@ TradeTrack is a full-stack trading journal built with Next.js, Supabase, Tailwin
 - Attendance tracker for session discipline
 - Trade journal with screenshot uploads
 - Mistake tracker with severity scoring
-- Cached daily insight after trade logging
-- Cached weekly summary with win rate and common mistakes
+- Shared workspace analytics with optional server-side DeepSeek analysis
 - Local pattern detection for overtrading, loss streaks, and strongest trade types
-
-## AI Budget Controls
-
-- TradeTrack stores AI results in `ai_insights` to avoid repeated calls.
-- Daily generation is capped at `2` AI runs per user per day.
-- The daily insight is only generated after a trade is logged.
-- Weekly summaries reuse the cached result for the same 7-day window.
-- Pattern detection is calculated locally so the model only writes concise advice.
 
 ## Local Setup
 
@@ -45,11 +36,12 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 # Needed for auth:create-users and username password reset
 SUPABASE_SERVICE_ROLE_KEY=
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-5-nano
+DEEPSEEK_API_KEY=
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
 
-`OPENAI_MODEL` is optional. The default is `gpt-5-nano` to keep costs low for short summaries. Keep `SUPABASE_SERVICE_ROLE_KEY` server-side only.
+DeepSeek settings are optional and only needed for the analytics page. Keep `SUPABASE_SERVICE_ROLE_KEY` server-side only.
 
 ## Provision The Two Login Accounts
 
@@ -83,7 +75,7 @@ The login page also has a password reset popup. It requires only the username, a
 
 ## Database Notes
 
-- Trades, mistakes, tasks, attendance records, and AI insights are protected by RLS.
+- Trades, mistakes, tasks, and attendance records are protected by RLS.
 - Screenshot uploads go to the `trade-screenshots` bucket.
 - The app uses per-user folder paths in storage: `<user-id>/<uuid>.<ext>`.
 
@@ -94,4 +86,4 @@ The login page also has a password reset popup. It requires only the username, a
 3. Add the same environment variables from `.env.local` in the Vercel project.
 4. Deploy.
 
-Supabase and OpenAI keys are the required runtime secrets. Add the service role key if you want to use username password reset in the deployed app.
+Supabase keys are the required runtime secrets. Add the service role key if you want to use username password reset in the deployed app. Add DeepSeek variables only if you want the analytics assistant.
